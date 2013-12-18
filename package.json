@@ -1,0 +1,29 @@
+{
+  "name": "upnpserver",
+  "version": "0.1.0",
+  "description": "upnpserver",
+  "main": "server.js",
+  "dependencies": {
+	  "node-ssdp": "latest",
+	  "jstoxml": "latest",
+	  "node-uuid": "latest",
+	  "xmldoc": "latest",
+	  "id3_reader": "latest",
+	  "mime": "latest",
+	  "isolocaldateformat": "latest",
+	  "send": "latest",
+	  "underscore": "latest",
+	  "async": "latest",
+	  "commander": "latest"
+	},
+  "repository": "",
+  "keywords": [
+    "Node.js",
+    "ushare",
+    "mediatomb",
+    "upnp"
+  ],
+  "author": "",
+  "license": "BSD",
+  "readmeFilename": "README.md"
+}
