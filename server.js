@@ -3,21 +3,32 @@ var SSDP = require('node-ssdp');
 var url = require('url');
 var UPNPServer = require("./lib/upnpServer");
 var PathRepository = require("./lib/pathRepository");
+var MusicRepository = require("./lib/musicRepository");
 var commander = require("commander");
 
 commander.repositories = [];
 
-commander.version(require("./package.json").version).option(
-		"-d, --directory <path>", "Mount directory on root", function(path) {
-			var mountPoint = "/";
-			var idx = path.indexOf("=");
-			if (idx > 0) {
-				mountPoint = path.substring(0, idx);
-				path = path.substring(idx + 1);
-			}
+commander.version(require("./package.json").version);
+commander.option("-d, --directory <path>", "Mount directory", function(path) {
+	var mountPoint = "/";
+	var idx = path.indexOf("=");
+	if (idx > 0) {
+		mountPoint = path.substring(0, idx);
+		path = path.substring(idx + 1);
+	}
 
-			commander.repositories.push(new PathRepository(mountPoint, path));
-		});
+	commander.repositories.push(new PathRepository(mountPoint, path));
+});
+commander.option("-m, --music <path>", "Mount music directory", function(path) {
+	var mountPoint = "/";
+	var idx = path.indexOf("=");
+	if (idx > 0) {
+		mountPoint = path.substring(0, idx);
+		path = path.substring(idx + 1);
+	}
+
+	commander.repositories.push(new MusicRepository(mountPoint, path));
+});
 
 commander.option("-n, --name <name>", "Name of server");
 commander.option("-u, --uuid <uuid>", "UUID of server");
