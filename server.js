@@ -91,7 +91,8 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 			return;
 		}
 
-		response.end('URL not implemented: ' + path);
+		response.writeHead(404, 'Resource not found: ' + path);
+		response.end();
 	});
 
 	httpServer.listen(upnpServer.port);
@@ -108,4 +109,6 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 			process.exit();
 		}, 1000);
 	});
+	
+	console.log("Waiting connexions on port "+httpServer.address().port);
 });
