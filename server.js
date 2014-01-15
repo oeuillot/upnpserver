@@ -87,12 +87,22 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 
 		// console.log("Uri=" + request.url);
 
-		if (upnpServer.processRequest(request, response, path)) {
-			return;
-		}
+		upnpServer.processRequest(request, response, path, function(error,
+				processed) {
+			console.log("Fin de requete ", error, processed);
 
-		response.writeHead(404, 'Resource not found: ' + path);
-		response.end();
+			if (error) {
+				response.writeHead(500, 'Server error: ' + error);
+				response.end();
+				return;
+			}
+			if (!processed) {
+				response.writeHead(404, 'Resource not found: ' + path);
+				response.end();
+				return;
+			}
+
+		});
 	});
 
 	httpServer.listen(upnpServer.port);
@@ -109,6 +119,6 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 			process.exit();
 		}, 1000);
 	});
-	
-	console.log("Waiting connexions on port "+httpServer.address().port);
+
+	console.log("Waiting connexions on port " + httpServer.address().port);
 });
