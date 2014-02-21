@@ -2,7 +2,7 @@
   "name": "upnpserver",
   "version": "0.1.0",
   "description": "upnpserver",
-  "main": "server.js",
+  "main": "index.js",
   "dependencies": {
 	  "node-ssdp": "latest",
 	  "jstoxml": "latest",
