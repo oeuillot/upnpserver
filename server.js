@@ -32,6 +32,7 @@ commander.option("-m, --music <path>", "Mount music directory", function(path) {
 
 commander.option("-n, --name <name>", "Name of server");
 commander.option("-u, --uuid <uuid>", "UUID of server");
+commander.option("--dlna", "Enable dlna support");
 
 commander.option("-p, --httpPort <port>", "Http port", function(v) {
     return parseInt(v, 10);
@@ -40,12 +41,12 @@ commander.option("-p, --httpPort <port>", "Http port", function(v) {
 try {
     commander.parse(process.argv);
 } catch (x) {
-    console.log("Error "+x);
+    console.log("Error " + x);
 }
-
 
 commander.name = commander.name || "Node Server";
 commander.uuid = commander.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
+commander.dlnaSupport = true || !!commander.dlna;
 
 commander.httpPort = commander.httpPort || 10293;
 
