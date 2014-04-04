@@ -49,7 +49,7 @@ try {
 
 commander.name = commander.name || "Node Server";
 commander.uuid = commander.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
-commander.dlnaSupport = true || !!commander.dlna;
+//commander.dlnaSupport = true || !!commander.dlna;
 
 commander.httpPort = commander.httpPort || 10293;
 
