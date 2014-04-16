@@ -1,3 +1,5 @@
+var heapdump = require("heapdump");
+
 var http = require('http');
 var SSDP = require('node-ssdp');
 var url = require('url');
@@ -135,4 +137,12 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 
 setInterval(function() {
   console.log(util.inspect(process.memoryUsage()));
-}, 1000 * 5);
+
+  heapdump.writeSnapshot();
+
+  var memMB = process.memoryUsage().rss / 1048576;
+  if (0 && memMB > nextMBThreshold) {
+    heapdump.writeSnapshot();
+    nextMBThreshold += 100
+  }
+}, 1000 * 60 * 10);
