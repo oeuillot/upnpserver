@@ -1,5 +1,3 @@
-var heapdump = require("heapdump");
-
 var http = require('http');
 var SSDP = require('node-ssdp');
 var url = require('url');
@@ -40,6 +38,8 @@ commander.option("-u, --uuid <uuid>", "UUID of server");
 commander.option("--dlna", "Enable dlna support");
 commander.option("--lang <lang>", "Specify language (en, fr)");
 
+commander.option("--profiler", "Enable memory profiler dump");
+
 commander.option("-p, --httpPort <port>", "Http port", function(v) {
   return parseInt(v, 10);
 });
@@ -52,7 +52,7 @@ try {
 
 commander.name = commander.name || "Node Server";
 commander.uuid = commander.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
-commander.dlnaSupport = true || !!commander.dlna;
+//commander.dlnaSupport = true || !!commander.dlna;
 
 commander.httpPort = commander.httpPort || 10293;
 
@@ -135,12 +135,16 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
   console.log("Waiting connexions on port " + httpServer.address().port);
 });
 
-setInterval(function() {
-  console.log(util.inspect(process.memoryUsage()));
+if (commander.profiler) {
+  var heapdump = require("heapdump");
+  
+  setInterval(function() {
+    console.log(util.inspect(process.memoryUsage()));
 
-  var memMB = process.memoryUsage().rss / 1048576;
-  if (memMB > nextMBThreshold) {
-    heapdump.writeSnapshot();
-    nextMBThreshold += 100
-  }
-}, 1000 * 60 * 10);
+    var memMB = process.memoryUsage().rss / 1048576;
+    if (memMB > nextMBThreshold) {
+      heapdump.writeSnapshot();
+      nextMBThreshold += 100
+    }
+  }, 1000 * 60 * 10);
+}
