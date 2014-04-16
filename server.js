@@ -92,7 +92,7 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
     // Remove specified device from cache.
   });
 
-  var httpServer = 1 http.createServer(function(request, response) {
+  var httpServer = http.createServer(function(request, response) {
     var path = url.parse(request.url).pathname;
 
     // console.log("Uri=" + request.url);
