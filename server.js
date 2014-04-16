@@ -1,6 +1,9 @@
+var heapdump = require("heapdump");
+
 var http = require('http');
 var SSDP = require('node-ssdp');
 var url = require('url');
+var util = require('util');
 var UPNPServer = require("./lib/upnpServer");
 var PathRepository = require("./lib/pathRepository");
 var MusicRepository = require("./lib/musicRepository");
@@ -49,7 +52,7 @@ try {
 
 commander.name = commander.name || "Node Server";
 commander.uuid = commander.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
-//commander.dlnaSupport = true || !!commander.dlna;
+commander.dlnaSupport = true || !!commander.dlna;
 
 commander.httpPort = commander.httpPort || 10293;
 
@@ -131,3 +134,13 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 
   console.log("Waiting connexions on port " + httpServer.address().port);
 });
+
+setInterval(function() {
+  console.log(util.inspect(process.memoryUsage()));
+
+  var memMB = process.memoryUsage().rss / 1048576;
+  if (memMB > nextMBThreshold) {
+    heapdump.writeSnapshot();
+    nextMBThreshold += 100
+  }
+}, 1000 * 60 * 10);
