@@ -47,19 +47,18 @@ commander.option("-p, --httpPort <port>", "Http port", function(v) {
 try {
   commander.parse(process.argv);
 } catch (x) {
-  console.log("Error " + x);
+  console.error("Exception while parsing", x);
 }
 
 commander.name = commander.name || "Node Server";
 commander.uuid = commander.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
-//commander.dlnaSupport = true || !!commander.dlna;
 
 commander.httpPort = commander.httpPort || 10293;
 
 var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
     upnpServer) {
   if (error) {
-    console.log("Can not start UPNP server : ", error);
+    console.error("Can not start UPNP server : ", error);
     return;
   }
 
@@ -99,22 +98,25 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 
     // console.log("Uri=" + request.url);
 
-    upnpServer.processRequest(request, response, path, function(error,
-        processed) {
-      console.log("End of request ", error, processed);
+    try {
+      upnpServer.processRequest(request, response, path, function(error,
+          processed) {
+        console.log("End of request ", error, processed);
 
-      if (error) {
-        response.writeHead(500, 'Server error: ' + error);
-        response.end();
-        return;
-      }
-      if (!processed) {
-        response.writeHead(404, 'Resource not found: ' + path);
-        response.end();
-        return;
-      }
-
-    });
+        if (error) {
+          response.writeHead(500, 'Server error: ' + error);
+          response.end();
+          return;
+        }
+        if (!processed) {
+          response.writeHead(404, 'Resource not found: ' + path);
+          response.end();
+          return;
+        }
+      });
+    } catch (x) {
+      console.error("Process request exception", x);
+    }
   });
 
   httpServer.listen(upnpServer.port);
@@ -137,7 +139,7 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 
 if (commander.profiler) {
   var heapdump = require("heapdump");
-  
+
   setInterval(function() {
     console.log(util.inspect(process.memoryUsage()));
 
