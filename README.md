@@ -8,9 +8,9 @@ This version does not need an external database (mysql, mongodb), it stores all 
 
 ## Installation
 
-    $ npm install commander
+    $ npm install upnpserver
 
-## Automated --help
+## Help
 
 ```
  $ nodejs server.js --help
@@ -35,7 +35,7 @@ This version does not need an external database (mysql, mongodb), it stores all 
 
 ```  
 
- $ nodejs server.js -d /MyFilms=/data/public/MyFilms -d /PublicVideo=/data/public/publicVideo -m /Musiques=/data/public/Musiques -n "My server" 
+ $ nodejs server.js -d /MyFilms=/data/MyFilms -d /PublicVideo=/home/me/videos -m /Musiques=/home/Musiques -n "My server" 
 
  ```
  
