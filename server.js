@@ -37,6 +37,7 @@ commander.option("-n, --name <name>", "Name of server");
 commander.option("-u, --uuid <uuid>", "UUID of server");
 commander.option("--dlna", "Enable dlna support");
 commander.option("--lang <lang>", "Specify language (en, fr)");
+commander.option("--strict", "Use strict specification");
 
 commander.option("--profiler", "Enable memory profiler dump");
 
@@ -134,15 +135,21 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
     }, 1000);
   });
 
+  process.on('uncaughtException', function(err) {
+    console.error('Caught exception: ' + err);
+  });
+
   console.log("Waiting connexions on port " + httpServer.address().port);
 });
+
+setInterval(function() {
+  console.log(util.inspect(process.memoryUsage()));
+}, 1000 * 30);
 
 if (commander.profiler) {
   var heapdump = require("heapdump");
 
   setInterval(function() {
-    console.log(util.inspect(process.memoryUsage()));
-
     var memMB = process.memoryUsage().rss / 1048576;
     if (memMB > nextMBThreshold) {
       heapdump.writeSnapshot();
