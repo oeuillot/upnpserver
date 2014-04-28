@@ -124,8 +124,11 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
 
   server.server('0.0.0.0', upnpServer.port);
 
+  var stopped = false;
+
   process.on('SIGINT', function() {
     console.log('disconnecting...');
+    stopped = true;
 
     server.stop();
     httpServer.close();
@@ -136,6 +139,10 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
   });
 
   process.on('uncaughtException', function(err) {
+    if (stopped) {
+      process.exit(0);
+      return;
+    }
     console.error('Caught exception: ' + err);
   });
 
