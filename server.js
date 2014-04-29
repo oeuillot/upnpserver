@@ -69,7 +69,7 @@ var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
   }
 
   var server = new SSDP({
-    logLevel : 'INFO',
+    logLevel : 'trace',
     log : true,
     udn : upnpServer.uuid,
     description : descURL
