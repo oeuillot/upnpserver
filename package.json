@@ -1,7 +1,7 @@
 {
   "name": "upnpserver",
   "version": "1.1.0",
-  "description": "upnpserver",
+  "description": "Simple Upnpserver server",
   "main": "api.js",
   "dependencies": {
 	  "node-ssdp": "latest",
