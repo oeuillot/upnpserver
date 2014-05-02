@@ -1,3 +1,4 @@
+var assert = require('assert');
 var events = require('events');
 var http = require('http');
 var SSDP = require('node-ssdp');
@@ -8,7 +9,7 @@ var UPNPServer = require('./lib/upnpServer');
 var PathRepository = require('./lib/pathRepository');
 var MusicRepository = require('./lib/musicRepository');
 
-var API = function(configuration) {
+var API = function(configuration, paths) {
   this.configuration = configuration || {};
 
   configuration.version(require("./package.json").version);
@@ -25,18 +26,61 @@ var API = function(configuration) {
   if (configuration.dlnaSupport !== false) {
     configuration.dlnaSupport = true;
   }
+
+  if (paths) {
+    debugger;
+    if (typeof (paths) == "string") {
+      this.addDirectory("/", paths);
+
+    } else if (util.isArray(paths)) {
+      var self = this;
+
+      paths.forEach(function(p) {
+        if (typeof (p) == "string") {
+          self.addDirectory("/", p);
+          return;
+        }
+
+        if (typeof (p) == "object" && p.path) {
+          var mountPoint = p.mountPoint || "/";
+          var type = p.type && p.type.toLowerCase();
+
+          if (type == "music") {
+            self.addMusicDirectory(mountPoint, p.path);
+            return;
+          }
+
+          self.addDirectory(mountPoint, p.path);
+          return;
+        }
+
+        console.error("Invalid path '" + p + "'");
+      });
+    }
+  }
+
 };
 module.exports = API;
 
 util.inherits(API, events.EventEmitter);
 
 API.prototype.addDirectory = function(mountPoint, path) {
+  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '"
+      + mountPoint + "'");
+  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint
+      + "'");
+
   var repository = new PathRepository("path:" + path, mountPoint, path);
 
   this.configuration.repositories.push(repository);
 };
 
 API.prototype.addMusicDirectory = function(mountPoint, path) {
+  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '"
+      + mountPoint + "'");
+  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint
+      + "'");
+
   var repository = new MusicRepository("music:" + path, mountPoint, path);
 
   this.configuration.repositories.push(repository);

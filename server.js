@@ -4,10 +4,9 @@ var commander = require("commander");
 var Server = require("./api");
 
 var directories = [];
-var musicDirectories = [];
 
 commander.option("-d, --directory <path>", "Mount directory", function(path) {
-  var mountPoint = "/";
+  var mountPoint = null;
   var idx = path.indexOf("=");
   if (idx > 0) {
     mountPoint = path.substring(0, idx);
@@ -20,14 +19,15 @@ commander.option("-d, --directory <path>", "Mount directory", function(path) {
   });
 });
 commander.option("-m, --music <path>", "Mount music directory", function(path) {
-  var mountPoint = "/";
+  var mountPoint = null;
   var idx = path.indexOf("=");
   if (idx > 0) {
     mountPoint = path.substring(0, idx);
     path = path.substring(idx + 1);
   }
 
-  musicDirectories.push({
+  directories.push({
+    type : "music",
     path : path,
     mountPoint : mountPoint
   });
@@ -53,17 +53,7 @@ try {
 
 // Create an UpnpServer with options
 
-var server = new Server(commander);
-
-// Add directories
-directories.forEach(function(d) {
-  server.addDirectory(d.mountPoint, d.path);
-});
-
-// Add music directories
-musicDirectories.forEach(function(md) {
-  server.addMusicDirectory(md.mountPoint, md.path);
-});
+var server = new Server(commander, directories);
 
 server.start();
 
@@ -93,7 +83,6 @@ server.on("waiting",
       console.log("Waiting connexions on port "
           + server.httpServer.address().port);
     });
-
 
 // Try to profile upnpserver manually !
 
