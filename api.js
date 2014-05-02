@@ -1,6 +1,7 @@
 var assert = require('assert');
 var events = require('events');
 var http = require('http');
+var os = require('os');
 var SSDP = require('node-ssdp');
 var url = require('url');
 var util = require('util');
@@ -28,7 +29,7 @@ var API = function(configuration, paths) {
   if (configuration.dlnaSupport !== false) {
     configuration.dlnaSupport = true;
   }
-  
+
   if (paths) {
     if (typeof (paths) == "string") {
       this.addDirectory("/", paths);
@@ -170,7 +171,18 @@ API.prototype.start = function(callback) {
 
           httpServer.listen(upnpServer.port);
 
-          var ssdpHost = self.configuration.hostname || '0.0.0.0';
+          var ssdpHost = self.configuration.hostname;
+
+          if (!ssdpHost || ssdpHost == '0.0.0.0') {
+            var ifaces = os.networkInterfaces();
+            for ( var dev in ifaces) {
+              ifaces[dev].forEach(function(details) {
+                if (details.family == 'IPv4' && !details.internal) {
+                  ssdpHost = details.address;
+                }
+              });
+            }
+          }
           ssdpServer.server(ssdpHost, upnpServer.port);
 
           self.emit("waiting");
