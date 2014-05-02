@@ -28,7 +28,6 @@ var API = function(configuration, paths) {
   }
 
   if (paths) {
-    debugger;
     if (typeof (paths) == "string") {
       this.addDirectory("/", paths);
 
