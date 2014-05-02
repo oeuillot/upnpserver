@@ -12,7 +12,7 @@ var MusicRepository = require('./lib/musicRepository');
 var API = function(configuration, paths) {
   this.configuration = configuration || {};
 
-  configuration.version(require("./package.json").version);
+  configuration.version=require("./package.json").version;
 
   if (!configuration.repositories) {
     configuration.repositories = [];
