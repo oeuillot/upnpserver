@@ -21,15 +21,14 @@ var API = function(configuration, paths) {
     configuration.repositories = [];
   }
   configuration.name = configuration.name || "Node Server";
-  configuration.uuid = configuration.uuid
-      || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
+  // configuration.uuid = configuration.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
 
   configuration.httpPort = configuration.httpPort || 10293;
 
   if (configuration.dlnaSupport !== false) {
     configuration.dlnaSupport = true;
   }
-
+  
   if (paths) {
     if (typeof (paths) == "string") {
       this.addDirectory("/", paths);
@@ -110,7 +109,7 @@ API.prototype.start = function(callback) {
           }
 
           var ssdpServer = new SSDP({
-            logLevel : self.configuration.ssdpLevel, // 'trace',
+            logLevel : self.configuration.ssdpLogLevel, // 'trace',
             log : self.configuration.ssdpLog,
             udn : upnpServer.uuid,
             description : descURL
@@ -171,7 +170,8 @@ API.prototype.start = function(callback) {
 
           httpServer.listen(upnpServer.port);
 
-          ssdpServer.server('0.0.0.0', upnpServer.port);
+          var ssdpHost = self.configuration.hostname || '0.0.0.0';
+          ssdpServer.server(ssdpHost, upnpServer.port);
 
           self.emit("waiting");
 

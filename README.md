@@ -61,11 +61,14 @@ Server constructor accepts an optional configuration object. At the moment, the 
 - `log` _Boolean_ Enable/disable logging. Default: false.
 - `logLevel` _String_ Specifies log level to print. Possible values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`. Defaults to `ERROR`.
 - `name` _String_ Name of server. Default 'Node Server'
-- `uuid` _String_ UUID of server. Default '142f98b7-c28b-4b6f-8ca2-b55d9f0657e3'
+- `uuid` _String_ UUID of server. (If not specified, a UUID v4 will be generated)
+- `hostname` _String_ Hostname to bind the server. Default: 0.0.0.0
 - `httpPort` _Number_ Http port. Default: 10293
 - `dlnaSupport` _Boolean_ Enable/disable dlna support. Default: true
 - `strict` _Boolean_ Use only official UPNP attributes. Default: false
-- `lang` _String_ Specify the language. Default: en
+- `lang` _String_ Specify the language (en, fr) for virtual folder names. Default: en
+- `ssdpLog` _Boolean_ Enable log of ssdp layer. Default: false
+- `ssdpLogLevel` _String_ Log level of ssdp layer.
 
 
 ## Author
