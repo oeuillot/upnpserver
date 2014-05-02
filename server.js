@@ -45,6 +45,8 @@ commander.option("-p, --httpPort <port>", "Http port", function(v) {
   return parseInt(v, 10);
 });
 
+commander.dlna = !!commander.dlna;
+
 try {
   commander.parse(process.argv);
 } catch (x) {
@@ -56,6 +58,15 @@ try {
 var server = new Server(commander, directories);
 
 server.start();
+
+server.on("waiting",
+    function() {
+      console.log("Waiting connexions on port "
+          + server.httpServer.address().port);
+    });
+
+
+// Catch nodejs problem or signals
 
 var stopped = false;
 
@@ -78,11 +89,7 @@ process.on('uncaughtException', function(err) {
   console.error('Caught exception: ' + err);
 });
 
-server.on("waiting",
-    function() {
-      console.log("Waiting connexions on port "
-          + server.httpServer.address().port);
-    });
+
 
 // Try to profile upnpserver manually !
 
