@@ -1,6 +1,7 @@
 var assert = require('assert');
 var events = require('events');
 var http = require('http');
+var ip = require('ip');
 var os = require('os');
 var SSDP = require('node-ssdp');
 var url = require('url');
@@ -174,14 +175,7 @@ API.prototype.start = function(callback) {
           var ssdpHost = self.configuration.hostname;
 
           if (!ssdpHost || ssdpHost == '0.0.0.0') {
-            var ifaces = os.networkInterfaces();
-            for ( var dev in ifaces) {
-              ifaces[dev].forEach(function(details) {
-                if (details.family == 'IPv4' && !details.internal) {
-                  ssdpHost = details.address;
-                }
-              });
-            }
+            ssdpHost=ip.address();
           }
           ssdpServer.server(ssdpHost, upnpServer.port);
 

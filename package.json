@@ -23,7 +23,8 @@
 	  "send": "latest",
 	  "underscore": "latest",
 	  "async": "latest",
-	  "commander": "latest"
+	  "commander": "latest",
+	  "ip": "latest"
 	},
   "keywords": [
     "Node.js",
