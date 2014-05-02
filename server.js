@@ -1,15 +1,11 @@
-var http = require('http');
-var SSDP = require('node-ssdp');
-var url = require('url');
 var util = require('util');
-var UPNPServer = require("./lib/upnpServer");
-var PathRepository = require("./lib/pathRepository");
-var MusicRepository = require("./lib/musicRepository");
 var commander = require("commander");
 
-commander.repositories = [];
+var Server = require("./api");
 
-commander.version(require("./package.json").version);
+var directories = [];
+var musicDirectories = [];
+
 commander.option("-d, --directory <path>", "Mount directory", function(path) {
   var mountPoint = "/";
   var idx = path.indexOf("=");
@@ -18,8 +14,10 @@ commander.option("-d, --directory <path>", "Mount directory", function(path) {
     path = path.substring(idx + 1);
   }
 
-  commander.repositories.push(new PathRepository("path:" + path, mountPoint,
-      path));
+  directories.push({
+    path : path,
+    mountPoint : mountPoint
+  });
 });
 commander.option("-m, --music <path>", "Mount music directory", function(path) {
   var mountPoint = "/";
@@ -29,8 +27,10 @@ commander.option("-m, --music <path>", "Mount music directory", function(path) {
     path = path.substring(idx + 1);
   }
 
-  commander.repositories.push(new MusicRepository("music:" + path, mountPoint,
-      path));
+  musicDirectories.push({
+    path : path,
+    mountPoint : mountPoint
+  });
 });
 
 commander.option("-n, --name <name>", "Name of server");
@@ -51,103 +51,51 @@ try {
   console.error("Exception while parsing", x);
 }
 
-commander.name = commander.name || "Node Server";
-commander.uuid = commander.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
+// Create an UpnpServer with options
 
-commander.httpPort = commander.httpPort || 10293;
+var server = new Server(commander);
 
-var upnpServer = new UPNPServer(commander.httpPort, commander, function(error,
-    upnpServer) {
-  if (error) {
-    console.error("Can not start UPNP server : ", error);
+// Add directories
+directories.forEach(function(d) {
+  server.addDirectory(d.mountPoint, d.path);
+});
+
+// Add music directories
+musicDirectories.forEach(function(md) {
+  server.addMusicDirectory(md.mountPoint, md.path);
+});
+
+server.start();
+
+var stopped = false;
+
+process.on('SIGINT', function() {
+  console.log('disconnecting...');
+  stopped = true;
+
+  server.stop();
+
+  setTimeout(function() {
+    process.exit();
+  }, 1000);
+});
+
+process.on('uncaughtException', function(err) {
+  if (stopped) {
+    process.exit(0);
     return;
   }
-
-  var descURL = upnpServer.descriptionPath;
-  if (descURL.charAt(0) == "/") {
-    descURL = descURL.substring(1);
-  }
-
-  var server = new SSDP({
-    logLevel : 'trace',
-    log : true,
-    udn : upnpServer.uuid,
-    description : descURL
-  });
-
-  server.addUSN('upnp:rootdevice');
-  server.addUSN(upnpServer.type);
-
-  upnpServer.services.forEach(function(service) {
-    server.addUSN(service.type);
-  });
-
-  server.on('advertise-alive', function(heads) {
-    // console.log('advertise-alive', heads);
-    // Expire old devices from your cache.
-    // Register advertising device somewhere (as designated in http headers
-    // heads)
-  });
-
-  server.on('advertise-bye', function(heads) {
-    // console.log('advertise-bye', heads);
-    // Remove specified device from cache.
-  });
-
-  var httpServer = http.createServer(function(request, response) {
-    var path = url.parse(request.url).pathname;
-
-    // console.log("Uri=" + request.url);
-
-    try {
-      upnpServer.processRequest(request, response, path, function(error,
-          processed) {
-        console.log("End of request ", error, processed);
-
-        if (error) {
-          response.writeHead(500, 'Server error: ' + error);
-          response.end();
-          return;
-        }
-        if (!processed) {
-          response.writeHead(404, 'Resource not found: ' + path);
-          response.end();
-          return;
-        }
-      });
-    } catch (x) {
-      console.error("Process request exception", x);
-    }
-  });
-
-  httpServer.listen(upnpServer.port);
-
-  server.server('0.0.0.0', upnpServer.port);
-
-  var stopped = false;
-
-  process.on('SIGINT', function() {
-    console.log('disconnecting...');
-    stopped = true;
-
-    server.stop();
-    httpServer.close();
-
-    setTimeout(function() {
-      process.exit();
-    }, 1000);
-  });
-
-  process.on('uncaughtException', function(err) {
-    if (stopped) {
-      process.exit(0);
-      return;
-    }
-    console.error('Caught exception: ' + err);
-  });
-
-  console.log("Waiting connexions on port " + httpServer.address().port);
+  console.error('Caught exception: ' + err);
 });
+
+server.on("waiting",
+    function() {
+      console.log("Waiting connexions on port "
+          + server.httpServer.address().port);
+    });
+
+
+// Try to profile upnpserver manually !
 
 setInterval(function() {
   console.log(util.inspect(process.memoryUsage()));
