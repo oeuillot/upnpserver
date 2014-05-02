@@ -10,9 +10,12 @@ var PathRepository = require('./lib/pathRepository');
 var MusicRepository = require('./lib/musicRepository');
 
 var API = function(configuration, paths) {
+  assert(configuration === undefined || typeof (configuration) == "object",
+      "Invalid configuration parameter '" + configuration + "'");
+
   this.configuration = configuration || {};
 
-  configuration.version=require("./package.json").version;
+  configuration.version = require("./package.json").version;
 
   if (!configuration.repositories) {
     configuration.repositories = [];
