@@ -15,16 +15,16 @@
   },
   "dependencies": {
 	  "node-ssdp": "latest",
-	  "jstoxml": "latest",
-	  "node-uuid": "latest",
-	  "xmldoc": "latest",
-	  "id3": "latest",
-	  "mime": "latest",
-	  "send": "latest",
-	  "underscore": "latest",
-	  "async": "latest",
-	  "commander": "latest",
-	  "ip": "latest"
+	  "jstoxml": "0.2",
+	  "node-uuid": "1.4",
+	  "xmldoc": "0.1.2",
+	  "id3": "0.0.3",
+	  "mime": "1.2",
+	  "send": "0.3",
+	  "underscore": "1.6",
+	  "async": "0.8",
+	  "commander": "2.2",
+	  "ip": "0.3"
 	},
   "keywords": [
     "Node.js",
