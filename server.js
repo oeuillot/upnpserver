@@ -88,6 +88,7 @@ process.on('uncaughtException', function(err) {
     process.exit(0);
     return;
   }
+  debugger;
   console.error('Caught exception: ' + err);
 });
 

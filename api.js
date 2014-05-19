@@ -110,7 +110,7 @@ API.prototype.start = function(callback) {
             descURL = descURL.substring(1);
           }
 
-          var ssdpServer = new SSDP({
+          var ssdpServer = new SSDP.Server({
             logLevel : self.configuration.ssdpLogLevel, // 'trace',
             log : self.configuration.ssdpLog,
             udn : upnpServer.uuid,
@@ -174,10 +174,7 @@ API.prototype.start = function(callback) {
 
           var ssdpHost = self.configuration.hostname;
 
-          if (!ssdpHost || ssdpHost == '0.0.0.0') {
-            ssdpHost=ip.address();
-          }
-          ssdpServer.server(ssdpHost, upnpServer.port);
+          ssdpServer.start(ssdpHost, upnpServer.port);
 
           self.emit("waiting");
 

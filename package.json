@@ -14,7 +14,7 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-	  "node-ssdp": "latest",
+	  "node-ssdp": "1.0.0",
 	  "jstoxml": "0.2",
 	  "node-uuid": "1.4",
 	  "xmldoc": "0.1.2",
