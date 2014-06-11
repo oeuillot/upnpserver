@@ -56,6 +56,8 @@ try {
   console.error("Exception while parsing", x);
 }
 
+//commander.garbageItems = true;
+
 // Create an UpnpServer with options
 
 var server = new Server(commander, directories);
@@ -64,8 +66,8 @@ server.start();
 
 server.on("waiting",
     function() {
-      console.log("Waiting connexions on port "
-          + server.httpServer.address().port);
+      console.log("Waiting connexions on port " +
+          server.httpServer.address().port);
     });
 
 // Catch nodejs problem or signals
@@ -100,6 +102,7 @@ setInterval(function() {
 
 if (commander.profiler) {
   var heapdump = require("heapdump");
+  console.log("***** HEAPDUMP enabled **************");
 
   setInterval(function() {
     var memMB = process.memoryUsage().rss / 1048576;
