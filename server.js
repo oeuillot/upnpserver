@@ -38,6 +38,8 @@ commander.option("-u, --uuid <uuid>", "UUID of server");
 commander.option("--dlna", "Enable dlna support");
 commander.option("--lang <lang>", "Specify language (en, fr)");
 commander.option("--strict", "Use strict specification");
+commander.option("--ssdpLog", "Enable log of SSDP engine");
+commander.option("--ssdpLogLevel <level>", "Log level of SSDP engine");
 
 commander.option("--profiler", "Enable memory profiler dump");
 
