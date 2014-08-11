@@ -68,10 +68,10 @@ module.exports = API;
 util.inherits(API, events.EventEmitter);
 
 API.prototype.addDirectory = function(mountPoint, path) {
-  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '"
-      + mountPoint + "'");
-  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint
-      + "'");
+  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '" +
+      mountPoint + "'");
+  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint +
+      "'");
 
   var repository = new PathRepository("path:" + path, mountPoint, path);
 
@@ -79,10 +79,10 @@ API.prototype.addDirectory = function(mountPoint, path) {
 };
 
 API.prototype.addMusicDirectory = function(mountPoint, path) {
-  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '"
-      + mountPoint + "'");
-  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint
-      + "'");
+  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '" +
+      mountPoint + "'");
+  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint +
+      "'");
 
   var repository = new MusicRepository("music:" + path, mountPoint, path);
 
@@ -110,11 +110,17 @@ API.prototype.start = function(callback) {
             descURL = descURL.substring(1);
           }
 
+          var locationURL = 'http://' + ip.address() + ':' +
+              self.configuration.httpPort + "/" + descURL;
+
+          debugger;
           var ssdpServer = new SSDP.Server({
             logLevel : self.configuration.ssdpLogLevel, // 'trace',
             log : self.configuration.ssdpLog,
             udn : upnpServer.uuid,
-            description : descURL
+            description : descURL,
+            location : locationURL
+            //ssdpPort: upnpServer.port
           });
           self.ssdpServer = ssdpServer;
 
@@ -174,7 +180,7 @@ API.prototype.start = function(callback) {
 
           var ssdpHost = self.configuration.hostname;
 
-          ssdpServer.start(ssdpHost, upnpServer.port);
+          ssdpServer.start(); // ssdpHost, upnpServer.port
 
           self.emit("waiting");
 
