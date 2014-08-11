@@ -4,6 +4,13 @@ UpnpServer is a fast and light upnp server written in NodeJS.
 This version does not need an external database (mysql, mongodb), it stores all informations in memory.
 
 
+## Compatibility
+
+- Freebox HD
+- Soundbridge
+- ht5streamer 
+- Intel Device Validator
+
 ## Installation
 
     $ npm install upnpserver
