@@ -105,6 +105,8 @@ API.prototype.start = function(callback) {
 
           self.emit("starting");
 
+          self.upnpServer = upnpServer;
+
           var descURL = upnpServer.descriptionPath;
           if (descURL.charAt(0) == "/") {
             descURL = descURL.substring(1);
@@ -113,14 +115,13 @@ API.prototype.start = function(callback) {
           var locationURL = 'http://' + ip.address() + ':' +
               self.configuration.httpPort + "/" + descURL;
 
-          debugger;
           var ssdpServer = new SSDP.Server({
             logLevel : self.configuration.ssdpLogLevel, // 'trace',
             log : self.configuration.ssdpLog,
             udn : upnpServer.uuid,
             description : descURL,
             location : locationURL
-            //ssdpPort: upnpServer.port
+          // ssdpPort: upnpServer.port
           });
           self.ssdpServer = ssdpServer;
 
@@ -186,8 +187,6 @@ API.prototype.start = function(callback) {
 
           callback(null);
         });
-
-    self.upnpServer = upnpServer;
   });
 };
 
