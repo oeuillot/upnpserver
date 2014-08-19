@@ -10,6 +10,7 @@ This version does not need an external database (mysql, mongodb), it stores all 
 - Soundbridge
 - ht5streamer 
 - Intel Device Validator
+- Samsung AllShare play
 
 ## Installation
 
