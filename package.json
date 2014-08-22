@@ -1,9 +1,8 @@
 {
   "name": "upnpserver",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "Simple Upnpserver server",
   "main": "api.js",
-  "bin": "./server.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:oeuillot/upnpserver.git"
@@ -24,7 +23,6 @@
 	  "send": "0.3",
 	  "underscore": "1.6",
 	  "async": "0.8",
-	  "commander": "2.2",
 	  "ip": "0.3"
 	},
 	"devDependecies": {	 
