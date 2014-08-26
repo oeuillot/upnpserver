@@ -18,7 +18,7 @@
 	  "jstoxml": "0.2",
 	  "node-uuid": "1.4",
 	  "xmldoc": "0.1.2",
-	  "id3js": "1.1.3",
+	  "id3js": "git://github.com/oeuillot/id3.git",
 	  "mime": "1.2",
 	  "send": "0.3",
 	  "underscore": "1.6",
