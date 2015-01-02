@@ -90,7 +90,10 @@ API.prototype.addMusicDirectory = function(mountPoint, path) {
 };
 
 API.prototype.start = function(callback) {
-  callback = callback || function() {
+  callback = callback || function(error) {
+    if (error) {
+      console.error(error);
+    }
   };
 
   var self = this;
@@ -147,7 +150,7 @@ API.prototype.start = function(callback) {
           var httpServer = http.createServer(function(request, response) {
             var path = url.parse(request.url).pathname;
 
-            // console.log("Uri=" + request.url);
+            console.log("Uri=" + request.url);
 
             try {
               upnpServer.processRequest(request, response, path, function(
