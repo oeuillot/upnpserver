@@ -23,18 +23,16 @@ For command line, install [upnpserver-cli](https://github.com/oeuillot/upnpserve
 ## API Usage
 
 ```javascript
+var Server = require("upnpserver");
 
-    var Server = require("upnpserver");
-    
-    var server=new Server({ /* configuration, see below */ }, [
-       '/home/disk1',
-    	{ path: '/home/myDisk' },
-    	{ path: '/media/movies', mountPoint: '/My movies'},
-    	{ path: '/media/albums', mountPoint: '/Personnal/My albums', type: 'music' }
-    ]);
-    
-    server.start();
-     
+var server = new Server({ /* configuration, see below */ }, [
+  '/home/disk1',
+  { path: '/home/myDisk' },
+  { path: '/media/movies', mountPoint: '/My movies'},
+  { path: '/media/albums', mountPoint: '/Personnal/My albums', type: 'music' }
+]);
+
+server.start();
 ```
 
 ##Configuration
