@@ -230,3 +230,5 @@ API.prototype.stop = function(callback) {
 
   callback(null, stopped);
 }
+
+API.version = require("./package.json").version;
