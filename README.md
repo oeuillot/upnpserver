@@ -1,7 +1,8 @@
 # upnpserver
+![upnpserver icon](icon/icon_128.png)
 
-UpnpServer is a fast and light upnp server written in NodeJS.
-This version does not need an external database (mysql, mongodb), it stores all informations in memory.
+UpnpServer is a fast and light UPnP server written in NodeJS.
+This version does not need an external database (mysql, mongodb), it stores all information in memory.
 
 
 ## Compatibility
@@ -45,7 +46,7 @@ Server constructor accepts an optional configuration object. At the moment, the 
 - `hostname` _String_ Hostname to bind the server. Default: 0.0.0.0
 - `httpPort` _Number_ Http port. Default: 10293
 - `dlnaSupport` _Boolean_ Enable/disable dlna support. Default: true
-- `strict` _Boolean_ Use only official UPNP attributes. Default: false
+- `strict` _Boolean_ Use only official UPnP attributes. Default: false
 - `lang` _String_ Specify the language (en, fr) for virtual folder names. Default: en
 - `ssdpLog` _Boolean_ Enable log of ssdp layer. Default: false
 - `ssdpLogLevel` _String_ Log level of ssdp layer.
