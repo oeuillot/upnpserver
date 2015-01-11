@@ -1,226 +1,255 @@
-var assert = require('assert');
-var events = require('events');
-var http = require('http');
-var ip = require('ip');
-var os = require('os');
-var SSDP = require('node-ssdp');
-var url = require('url');
-var util = require('util');
+var _ = require('underscore')
+  , assert = require('assert')
+  , events = require('events')
+  , http = require('http')
+  , ip = require('ip')
+  , logger = require('./lib/logger')
+  , SSDP = require('node-ssdp')
+  , url = require('url')
+  , util = require('util');
 
 var UPNPServer = require('./lib/upnpServer');
 var PathRepository = require('./lib/pathRepository');
 var MusicRepository = require('./lib/musicRepository');
 
-var API = function(configuration, paths) {
-  assert(configuration === undefined || typeof (configuration) == "object",
-      "Invalid configuration parameter '" + configuration + "'");
+/**
+ * upnpserver API.
+ *
+ * @param {object} configuration
+ * @param {array} paths
+ *
+ * @constructor
+ */
+var API = function (configuration, paths) {
+  this.configuration = _.extend(this.defaultConfiguration, configuration);
+  this.directories = [];
 
-  this.configuration = configuration || {};
-
-  configuration.version = require("./package.json").version;
-
-  if (!configuration.repositories) {
-    configuration.repositories = [];
-  }
-  configuration.name = configuration.name || "Node Server";
-  // configuration.uuid = configuration.uuid || "142f98b7-c28b-4b6f-8ca2-b55d9f0657e3";
-
-  configuration.httpPort = configuration.httpPort || 10293;
-
-  if (configuration.dlnaSupport !== false) {
-    configuration.dlnaSupport = true;
+  if (!paths || paths.length === 0) {
+    throw ("No paths!");
   }
 
-  if (paths) {
-    if (typeof (paths) == "string") {
-      this.addDirectory("/", paths);
-
-    } else if (util.isArray(paths)) {
-      var self = this;
-
-      paths.forEach(function(p) {
-        if (typeof (p) == "string") {
-          self.addDirectory("/", p);
-          return;
-        }
-
-        if (typeof (p) == "object" && p.path) {
-          var mountPoint = p.mountPoint || "/";
-          var type = p.type && p.type.toLowerCase();
-
-          if (type == "music") {
-            self.addMusicDirectory(mountPoint, p.path);
-            return;
-          }
-
-          self.addDirectory(mountPoint, p.path);
-          return;
-        }
-
-        console.error("Invalid path '" + p + "'");
-      });
-    }
+  if (typeof paths === "string") {
+    this.addDirectory("/", paths);
+  } else if (util.isArray(paths)) {
+    paths.forEach(_.bind(this.initPaths, this));
   }
-
 };
-module.exports = API;
 
 util.inherits(API, events.EventEmitter);
 
-API.prototype.addDirectory = function(mountPoint, path) {
-  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '" +
+/**
+ * Default server configuration.
+ * @type {object}
+ */
+API.prototype.defaultConfiguration = {
+  "dlnaSupport": true,
+  "httpPort": 10293,
+  "name": "Node Server",
+  "version": require("./package.json").version
+};
+
+/**
+ * Initialize paths.
+ *
+ * @param path
+ */
+API.prototype.initPaths = function (path) {
+  if (typeof path === "string") {
+    this.addDirectory("/", path);
+  } else if (typeof path === "object" && path.path) {
+    var mountPoint = path.mountPoint || "/",
+      type = path.type && path.type.toLowerCase();
+
+    switch (type) {
+    case "music":
+      this.addMusicDirectory(mountPoint, path.path);
+      break;
+    default:
+      this.addDirectory(mountPoint, path.path);
+    }
+  } else {
+    throw ("Invalid path '" + path + "'");
+  }
+};
+
+/**
+ * Add simple directory.
+ *
+ * @param {string} mountPoint
+ * @param {string} path
+ */
+API.prototype.addDirectory = function (mountPoint, path) {
+  assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
       mountPoint + "'");
-  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint +
+  assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
       "'");
 
   var repository = new PathRepository("path:" + path, mountPoint, path);
 
-  this.configuration.repositories.push(repository);
+  this.directories.push(repository);
 };
 
+/**
+ * Add music directory.
+ *
+ * @param {string} mountPoint
+ * @param {string} path
+ */
 API.prototype.addMusicDirectory = function(mountPoint, path) {
-  assert(typeof (mountPoint) == "string", "Invalid mountPoint parameter '" +
+  assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
       mountPoint + "'");
-  assert(typeof (path) == "string", "Invalid path parameter '" + mountPoint +
+  assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
       "'");
 
   var repository = new MusicRepository("music:" + path, mountPoint, path);
 
-  this.configuration.repositories.push(repository);
+  this.directories.push(repository);
 };
 
-API.prototype.start = function(callback) {
-  callback = callback || function(error) {
-    if (error) {
-      console.error(error);
-    }
-  };
+/**
+ * Start server.
+ */
+API.prototype.start = function () {
+  this.stop(_.bind(this.startServer, this));
+};
 
-  var self = this;
+/**
+ * Start server callback.
+ *
+ * @return {UPNPServer}
+ */
+API.prototype.startServer = function () {
+  var configuration = this.configuration;
+  configuration.repositories = this.directories;
 
-  this.stop(function() {
-    var upnpServer = new UPNPServer(self.configuration.httpPort,
-        self.configuration, function(error, upnpServer) {
-          if (error) {
-            callback(error);
-            return;
-          }
+  return new UPNPServer(
+    configuration.httpPort,
+    configuration,
+    _.bind(this.afterServerStart, this)
+  );
+};
 
-          self.emit("starting");
+/**
+ * After server start.
+ *
+ * @param {string} error
+ * @param {object} upnpServer
+ */
+API.prototype.afterServerStart = function (error, upnpServer) {
+  this.logError(error);
 
-          self.upnpServer = upnpServer;
+  this.emit("starting");
 
-          var descURL = upnpServer.descriptionPath;
-          if (descURL.charAt(0) == "/") {
-            descURL = descURL.substring(1);
-          }
+  this.upnpServer = upnpServer;
 
-          var locationURL = 'http://' + ip.address() + ':' +
-              self.configuration.httpPort + "/" + descURL;
+  var descURL = this.upnpServer.descriptionPath.charAt(0) === "/" ?
+    this.upnpServer.descriptionPath.substring(1) : this.upnpServer.descriptionPath,
+    locationURL = 'http://' + ip.address() + ':' + this.configuration.httpPort + "/" + descURL,
+    self = this;
 
-          var ssdpServer = new SSDP.Server({
-            logLevel : self.configuration.ssdpLogLevel, // 'trace',
-            log : self.configuration.ssdpLog,
-            udn : upnpServer.uuid,
-            description : descURL,
-            location : locationURL
-          // ssdpPort: upnpServer.port
-          });
-          self.ssdpServer = ssdpServer;
-
-          ssdpServer.addUSN('upnp:rootdevice');
-          ssdpServer.addUSN(upnpServer.type);
-
-          upnpServer.services.forEach(function(service) {
-            ssdpServer.addUSN(service.type);
-          });
-
-          ssdpServer.on('advertise-alive', function(heads) {
-            // console.log('advertise-alive', heads);
-            // Expire old devices from your cache.
-            // Register advertising device somewhere (as designated in http headers
-            // heads)
-          });
-
-          ssdpServer.on('advertise-bye', function(heads) {
-            // console.log('advertise-bye', heads);
-            // Remove specified device from cache.
-          });
-
-          var httpServer = http.createServer(function(request, response) {
-            var path = url.parse(request.url).pathname;
-
-            console.log("Uri=" + request.url);
-
-            try {
-              upnpServer.processRequest(request, response, path, function(
-                  error, processed) {
-                // console.log("End of request ", error, processed);
-
-                if (error) {
-                  response.writeHead(500, 'Server error: ' + error);
-                  response.end();
-
-                  self.emit("error:500", error);
-                  return;
-                }
-
-                if (!processed) {
-                  response.writeHead(404, 'Resource not found: ' + path);
-                  response.end();
-
-                  self.emit("error:404", path);
-                  return;
-                }
-              });
-            } catch (x) {
-              console.error("Process request exception", x);
-              self.emit("error", x);
-            }
-          });
-          self.httpServer = httpServer;
-
-          httpServer.listen(upnpServer.port);
-
-          var ssdpHost = self.configuration.hostname;
-
-          ssdpServer.start(); // ssdpHost, upnpServer.port
-
-          self.emit("waiting");
-
-          callback(null);
-        });
+  this.ssdpServer = new SSDP.Server({
+    logLevel : self.configuration.ssdpLogLevel, // 'trace',
+    log : self.configuration.ssdpLog,
+    udn : self.upnpServer.uuid,
+    description : descURL,
+    location : locationURL
   });
+
+  this.ssdpServer.addUSN('upnp:rootdevice');
+  this.ssdpServer.addUSN(upnpServer.type);
+
+  if (this.upnpServer.services) {
+    this.upnpServer.services.forEach(_.bind(function (service) {
+      this.ssdpServer.addUSN(service.type);
+    }, this));
+  }
+
+  this.httpServer = http.createServer(_.bind(this.afterHttpServerCreate, this));
+
+  this.httpServer.listen(upnpServer.port);
+
+  this.ssdpServer.start();
+
+  this.emit("waiting");
 };
 
-API.prototype.stop = function(callback) {
-  callback = callback || function() {
-  };
+/**
+ * After http server creation.
+ *
+ * @param {object} request
+ * @param {object} response
+ */
+API.prototype.afterHttpServerCreate = function (request, response) {
+  this.request = request;
+  this.response = response;
 
-  var upnpServer = this.upnpServer;
-  var stopped = false;
+  this.path = url.parse(this.request.url).pathname;
 
-  var ssdpServer = this.ssdpServer;
-  if (ssdpServer) {
+  logger.debug("Uri=" + this.request.url);
+
+  try {
+    this.upnpServer.processRequest(this.request, this.response, this.path, _.bind(this.afterProcessRequest, this));
+  } catch (error) {
+    logger.error("Process request exception", error);
+    this.emit("error", error);
+  }
+};
+
+/**
+ * After processed request.
+ *
+ * @param {string} error
+ * @param {boolean} processed
+ */
+API.prototype.afterProcessRequest = function (error, processed) {
+  if (error) {
+    this.response.writeHead(500, 'Server error: ' + error);
+    this.response.end();
+
+    this.emit("error:500", error);
+    return;
+  }
+
+  if (!processed) {
+    this.response.writeHead(404, 'Resource not found: ' + this.path);
+    this.response.end();
+
+    this.emit("error:404", this.path);
+
+  }
+};
+
+/**
+ * Stop server.
+ *
+ * @param {function|null} callback
+ */
+API.prototype.stop = function (callback) {
+  callback = callback || function () { return false; };
+
+  var httpServer = this.httpServer,
+    ssdpServer = this.ssdpServer,
+    stopped = false;
+
+  if (this.ssdpServer) {
     this.ssdpServer = undefined;
     stopped = true;
 
     try {
       ssdpServer.stop();
-    } catch (x) {
-      // console.error(x);
+    } catch (error) {
+      this.logError(error);
     }
   }
 
-  var httpServer = this.httpServer;
   if (httpServer) {
     this.httpServer = undefined;
     stopped = true;
 
     try {
       httpServer.stop();
-    } catch (x) {
-      // console.error(x);
+    } catch (error) {
+      this.logError(error);
     }
   }
 
@@ -229,6 +258,17 @@ API.prototype.stop = function(callback) {
   }
 
   callback(null, stopped);
-}
+};
 
-API.version = require("./package.json").version;
+/**
+ * Output error.
+ *
+ * @param {string} error
+ */
+API.prototype.logError = function (error) {
+  if (error) {
+    logger.error(error);
+  }
+};
+
+module.exports = API;

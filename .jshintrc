@@ -1,0 +1,18 @@
+{
+  "boss":      true,
+  "node":      true,
+  "strict":    false,
+  "maxlen":    120,
+  "newcap":    false,
+  "undef":     true,
+  "unused":    true,
+  "lastsemic": true,
+  "laxcomma":  true,
+  "indent":    2,
+  "globals":   {
+    "describe": false,
+    "it": false,
+    "module": false,
+    "require": false
+  }
+}
