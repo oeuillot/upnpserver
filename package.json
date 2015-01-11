@@ -14,19 +14,17 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-	  "node-ssdp": "2.0.1",
-	  "jstoxml": "0.2",
-	  "node-uuid": "1.4",
-	  "xmldoc": "0.1.2",
-	  "musicmetadata": "latest",
-	  "mime": "1.2",
-	  "send": "0.3",
-	  "underscore": "1.6",
-	  "async": "0.8",
-	  "ip": "0.3"
-	},
-	"devDependecies": {	 
-	},
+    "node-ssdp": "2.0.1",
+    "jstoxml": "0.2",
+    "node-uuid": "1.4",
+    "xmldoc": "0.1.2",
+    "musicmetadata": "latest",
+    "mime": "1.2",
+    "send": "0.3",
+    "underscore": "1.6",
+    "async": "0.8",
+    "ip": "0.3"
+  },
   "keywords": [
     "Node.js",
     "ushare",
@@ -34,6 +32,9 @@
     "upnp"
   ],
   "author": "Olivier Oeuillot",
-  "license": "BSD",
-  "readmeFilename": "README.md"
+  "license": "GPL",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "mocha": "~2.1.0"
+  }
 }

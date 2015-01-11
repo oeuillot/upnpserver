@@ -52,7 +52,16 @@ Server constructor accepts an optional configuration object. At the moment, the 
 - `ssdpLog` _Boolean_ Enable log of ssdp layer. Default: false
 - `ssdpLogLevel` _String_ Log level of ssdp layer.
 
+## Testing
+For testing purposes used *mocha* framework. To run tests, you should do this:
+```bash
+make test
+```
 
 ## Author
 
 Olivier Oeuillot
+
+## Contributors
+
+https://github.com/oeuillot/upnpserver/graphs/contributors
