@@ -9,8 +9,8 @@ var _ = require('underscore')
   , util = require('util');
 
 var UPNPServer = require('./lib/upnpServer');
-var PathRepository = require('./lib/pathRepository');
-var MusicRepository = require('./lib/musicRepository');
+var PathRepository = require('./lib/repositories/pathRepository');
+var MusicRepository = require('./lib/repositories/musicRepository');
 
 /**
  * upnpserver API.
@@ -189,6 +189,7 @@ API.prototype.afterHttpServerCreate = function (request, response) {
 
   try {
     this.upnpServer.processRequest(this.request, this.response, this.path, _.bind(this.afterProcessRequest, this));
+    
   } catch (error) {
     logger.error("Process request exception", error);
     this.emit("error", error);
