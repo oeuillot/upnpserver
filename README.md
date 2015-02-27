@@ -13,6 +13,9 @@ This version does not need an external database (mysql, mongodb), it stores all 
 - Intel Device Validator
 - Samsung AllShare play
 - LG Smart Share
+- Android
+    - VPlayer (with UPNP Plugin)
+    - NX Player
 
 ## Installation
 
