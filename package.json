@@ -1,7 +1,7 @@
 {
   "name": "upnpserver",
-  "version": "1.3.0",
-  "description": "Simple Upnpserver server",
+  "version": "2.0.0",
+  "description": "Simple Upnpserver server. It supports several audio tags (id3,...) and matroska metadatas.",
   "main": "api.js",
   "repository": {
     "type": "git",
@@ -23,7 +23,9 @@
     "send": "0.3",
     "underscore": "1.6",
     "async": "0.8",
-    "ip": "0.3"
+    "ip": "0.3",
+	  "matroska": "git://github.com/oeuillot/node-matroska.git",
+	  "debug": "latest"
   },
   "keywords": [
     "Node.js",
