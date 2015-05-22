@@ -34,22 +34,5 @@
 	"contentHandlers": {
 		"video/x-matroska": "./lib/contentHandlers/video_matroska",
 		"audio/*": "./lib/contentHandlers/audio_musicmetadata"
-	},
-	
-	"xcontentProviders": {
-		"dropbox": "./lib/contentProviders/dropbox",
-		"googleDrive": "./lib/contentProviders/googleDrive",
-		"http": "./lib/contentProviders/http"		
-	},
-	
-	"directories": {
-		
-	},
-	
-	"extensions": [
-	  {
-	  	"name": 'allocine',
-	  	"require": 'upnpserver-allocine'
-	  }
-	]
+	}
 }
