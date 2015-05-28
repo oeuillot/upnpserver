@@ -25,7 +25,8 @@
     "async": "0.8",
     "ip": "0.3",
 	  "matroska": "git://github.com/oeuillot/node-matroska.git",
-	  "debug": "latest"
+	  "debug": "latest",
+	  "follow-redirects": "latest"
   },
   "keywords": [
     "Node.js",
