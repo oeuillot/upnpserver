@@ -1,6 +1,6 @@
 {
   "name": "upnpserver",
-  "version": "2.2.1",
+  "version": "2.1.1",
   "description": "Simple Upnpserver server. It supports several audio tags (id3,...) and matroska metadatas.",
   "main": "api.js",
   "repository": {
