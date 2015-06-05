@@ -22,7 +22,7 @@
     "mime": "1.2",
     "send": "0.3",
     "underscore": "1.6",
-    "async": "0.8",
+    "async": "1.2",
     "ip": "0.3",
 	  "matroska": "1.2.1",
 	  "debug": "2.2",
