@@ -1,3 +1,6 @@
+/*jslint node: true, nomen: true */
+"use strict";
+
 var assert = require('assert');
 var events = require('events');
 var http = require('http');
@@ -12,6 +15,7 @@ var logger = require('./lib/logger');
 var UPNPServer = require('./lib/upnpServer');
 var PathRepository = require('./lib/repositories/pathRepository');
 var MusicRepository = require('./lib/repositories/musicRepository');
+var HistoryRepository = require('./lib/repositories/historyRepository');
 
 /**
  * upnpserver API.
@@ -80,23 +84,33 @@ API.prototype.initPaths = function(path) {
     return;
   }
 
-  if (typeof (path) === "object" && path.path) {
+  if (typeof (path) === "object") {
     var mountPoint = path.mountPoint || "/";
 
     var type = path.type && path.type.toLowerCase();
 
     switch (type) {
     case "music":
+      if (!path.path) {
+        throw new Error("Path must be defined '" + util.inspect(path) + "'")
+      }
       this.addMusicDirectory(mountPoint, path.path);
       break;
 
+    case "history":
+      this.addHistoryDirectory(mountPoint);
+      break;
+
     default:
+      if (!path.path) {
+        throw new Error("Path must be defined '" + util.inspect(path) + "'")
+      }
       this.addDirectory(mountPoint, path.path);
     }
     return;
   }
 
-  throw ("Invalid path '" + path + "'");
+  throw new Error("Invalid path '" + util.inspect(path) + "'");
 };
 
 /**
@@ -120,6 +134,18 @@ API.prototype.addDirectory = function(mountPoint, path) {
 
   var repository = new PathRepository("path:" + path, mountPoint, path);
 
+  this.addRepository(repository);
+};
+
+/**
+ * Add a repository.
+ * 
+ * @param {Repository}
+ *            repository
+ */
+API.prototype.addRepository = function(repository) {
+  assert(repository, "Invalid repository parameter '" + repository + "'");
+
   this.directories.push(repository);
 };
 
@@ -139,7 +165,22 @@ API.prototype.addMusicDirectory = function(mountPoint, path) {
 
   var repository = new MusicRepository("music:" + path, mountPoint, path);
 
-  this.directories.push(repository);
+  this.addRepository(repository);
+};
+
+/**
+ * Add history directory.
+ * 
+ * @param {string}
+ *            mountPoint
+ */
+API.prototype.addHistoryDirectory = function(mountPoint) {
+  assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
+      mountPoint + "'");
+
+  var repository = new HistoryRepository(null, mountPoint);
+
+  this.addRepository(repository);
 };
 
 API.prototype.loadConfiguration = function(path) {
