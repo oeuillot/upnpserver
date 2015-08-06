@@ -31,8 +31,18 @@
     "object.container.playlistContainer": "./lib/class/object.container.playlistContainer"
 	},
 
-	"contentHandlers": {
-		"video/x-matroska": "./lib/contentHandlers/video_matroska",
-		"audio/*": "./lib/contentHandlers/audio_musicmetadata"
-	}
+	"contentHandlers": [ {
+			"key": "matroska",
+			"mimeType": "video/x-matroska",
+		  "require": "./lib/contentHandlers/video_matroska"
+		}, {
+			"key": "musicmetadata",
+			"mimeType": "audio/*",
+			"require": "./lib/contentHandlers/audio_musicmetadata"
+		}, {
+			"key": "af_metas",
+			"mimeType": "video/*",
+			"require": "./lib/contentHandlers/af_metas",
+			"priority": -10
+		} ]
 }

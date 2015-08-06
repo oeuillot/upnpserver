@@ -201,32 +201,28 @@ API.prototype.loadConfiguration = function(path) {
 
   var contentHandlers = config.contentHandlers;
   if (contentHandlers) {
-    for ( var mimeType in config.contentHandlers) {
-      var path = contentHandlers[mimeType];
+    var cs = self._contentHandlers;
 
-      if (typeof (path) === "string") {
-        path = [ path ];
+    contentHandlers.forEach(function(contentHandler) {
+
+      var mimeTypes = contentHandler.mimeTypes || [];
+
+      if (contentHandler.mimeType) {
+        mimeTypes = mimeTypes.slice(0);
+        mimeTypes.push(contentHandler.mimeType);
       }
 
-      var cs = self._contentHandlers;
+      var clazz = require(contentHandler.require);
 
-      path.forEach(function(p) {
-        var clazz = require(p);
+      var configuration = contentHandler.configuration || {};
 
-        var ch = new clazz();
-        ch.key = cs.length;
-        ch.priority = ch.priority || 0;
+      var ch = new clazz(configuration);
+      ch.key = contentHandler.key || cs.length;
+      ch.priority = contentHandler.priority || 0;
+      ch.mimeTypes = mimeTypes;
 
-        if (util.isArray(mimeType)) {
-          ch.mimeTypes = mimeType;
-
-        } else {
-          ch.mimeTypes = [ mimeType ];
-        }
-
-        cs.push(ch);
-      });
-    }
+      cs.push(ch);
+    });
   }
 
   var directories = config.directories;

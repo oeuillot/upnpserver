@@ -17,7 +17,7 @@
     "node-ssdp": "2.2.1",
     "jstoxml": "0.2",
     "node-uuid": "1.4",
-    "xmldoc": "0.1.2",
+    "sax": "0.4.2",
     "musicmetadata": "1.0.0",
     "mime": "1.2",
     "send": "0.3",
