@@ -16,6 +16,7 @@ var UPNPServer = require('./lib/upnpServer');
 var PathRepository = require('./lib/repositories/pathRepository');
 var MusicRepository = require('./lib/repositories/musicRepository');
 var HistoryRepository = require('./lib/repositories/historyRepository');
+var IceCastRepository = require('./lib/repositories/iceCastRepository');
 
 /**
  * upnpserver API.
@@ -101,6 +102,10 @@ API.prototype.initPaths = function(path) {
       this.addHistoryDirectory(mountPoint);
       break;
 
+    case "icecast":
+      this.addIceCast(mountPoint);
+      break;
+
     default:
       if (!path.path) {
         throw new Error("Path must be defined '" + util.inspect(path) + "'")
@@ -179,6 +184,23 @@ API.prototype.addHistoryDirectory = function(mountPoint) {
       mountPoint + "'");
 
   var repository = new HistoryRepository(null, mountPoint);
+
+  this.addRepository(repository);
+};
+
+/**
+ * Add iceCast.
+ * 
+ * @param {string}
+ *            mountPoint
+ * @param {object}
+ *            medias (icecasts medias)
+ */
+API.prototype.addIceCast = function(mountPoint) {
+  assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
+      mountPoint + "'");
+
+  var repository = new IceCastRepository("iceCast", mountPoint);
 
   this.addRepository(repository);
 };
