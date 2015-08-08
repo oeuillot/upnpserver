@@ -5,6 +5,7 @@
 		
 		"object.item.audioItem": "./lib/class/object.item.audioItem",
     "object.item.audioItem.musicTrack": "./lib/class/object.item.audioItem.musicTrack",
+    "object.item.audioItem.audioBroadcast": "./lib/class/object.item.audioItem.audioBroadcast",
     
     "object.item.videoItem": "./lib/class/object.item.videoItem",
     "object.item.videoItem.movie": "./lib/class/object.item.videoItem.movie",
