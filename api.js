@@ -319,9 +319,8 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
 
   this.upnpServer = upnpServer;
 
-  var descriptionPath = upnpServer.descriptionPath.replace(/^\//, '');
   var locationURL = 'http://' + ip.address() + ':' +
-      this.configuration.httpPort + "/" + descriptionPath;
+      this.configuration.httpPort + "/description.xml";
 
   var self = this;
 
@@ -329,7 +328,7 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
     logLevel : self.configuration.ssdpLogLevel, // 'trace',
     log : self.configuration.ssdpLog,
     udn : self.upnpServer.uuid,
-    description : descriptionPath,
+    description : "/description.xml",
     location : locationURL,
     ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
         "UPnPServer/" + require("./package.json").version
