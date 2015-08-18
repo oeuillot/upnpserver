@@ -342,9 +342,9 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
 
   var services = upnpServer.services;
   if (services) {
-    services.forEach(function(service) {
-      ssdpServer.addUSN(service.type);
-    });
+    for (var route in services){
+      ssdpServer.addUSN(services[route].type);
+    };
   }
 
   var httpServer = http.createServer();
