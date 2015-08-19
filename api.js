@@ -3,9 +3,11 @@
 
 var assert = require('assert');
 var events = require('events');
-var http = require('http');
-var ip = require('ip');
-var SSDP = require('node-ssdp');
+var os = require('os');
+
+//var SSDP = require('node-ssdp');
+var SsdpServer = require('./lib/ssdp');
+
 var url = require('url');
 var util = require('util');
 var _ = require('underscore');
@@ -29,7 +31,10 @@ var IceCastRepository = require('./lib/repositories/iceCastRepository');
  * @constructor
  */
 var API = function(configuration, paths) {
+
   this.configuration = _.extend(this.defaultConfiguration, configuration);
+
+  // TODO: move this on ContentDirectoryService
   this.directories = [];
   this._upnpClasses = {};
   this._contentHandlers = [];
@@ -45,6 +50,9 @@ var API = function(configuration, paths) {
     });
   }
 
+  this.ip = this.configuration.ip ||
+      this.getExternalIp(this.configuration.ipFamily, this.configuration.iface);
+
   if (this.configuration.noDefaultConfig !== true) {
     this.loadConfiguration("./default-config.json");
   }
@@ -58,6 +66,14 @@ var API = function(configuration, paths) {
       this.loadConfiguration(cf[i]);
     }
   }
+
+  this.ssdpServer = new SsdpServer({
+    logLevel : this.configuration.ssdpLogLevel,
+    log : this.configuration.ssdpLog,
+    ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
+        "UPnPServer/" + require("./package.json").version
+  });
+
 };
 
 util.inherits(API, events.EventEmitter);
@@ -78,6 +94,7 @@ API.prototype.defaultConfiguration = {
  * Initialize paths.
  *
  * @param path
+ * TODO: move this on ContentDirectoryService
  */
 API.prototype.initPaths = function(path) {
   if (typeof (path) === "string") {
@@ -125,6 +142,7 @@ API.prototype.initPaths = function(path) {
  *            mountPoint
  * @param {string}
  *            path
+ * TODO: move this on ContentDirectoryService
  */
 API.prototype.addDirectory = function(mountPoint, path) {
   assert(typeof (mountPoint) === "string", "Invalid mountPoint parameter '" +
@@ -147,6 +165,7 @@ API.prototype.addDirectory = function(mountPoint, path) {
  *
  * @param {Repository}
  *            repository
+ * TODO: move this on ContentDirectoryService
  */
 API.prototype.addRepository = function(repository) {
   assert(repository, "Invalid repository parameter '" + repository + "'");
@@ -161,6 +180,7 @@ API.prototype.addRepository = function(repository) {
  *            mountPoint
  * @param {string}
  *            path
+ * TODO: move this on ContentDirectoryService
  */
 API.prototype.addMusicDirectory = function(mountPoint, path) {
   assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
@@ -178,6 +198,7 @@ API.prototype.addMusicDirectory = function(mountPoint, path) {
  *
  * @param {string}
  *            mountPoint
+ * TODO: move this on ContentDirectoryService
  */
 API.prototype.addHistoryDirectory = function(mountPoint) {
   assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
@@ -195,6 +216,7 @@ API.prototype.addHistoryDirectory = function(mountPoint) {
  *            mountPoint
  * @param {object}
  *            medias (icecasts medias)
+ * TODO: move this on ContentDirectoryService
  */
 API.prototype.addIceCast = function(mountPoint) {
   assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
@@ -293,7 +315,7 @@ API.prototype.startServer = function(callback) {
     };
   }
 
-  var upnpServer = new UPNPServer(configuration.httpPort, configuration,
+  var upnpServer = new UPNPServer(self.ssdpServer, self.ip, configuration,
       function(error, upnpServer) {
         if (error) {
           logger.error(error);
@@ -319,113 +341,14 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
 
   this.upnpServer = upnpServer;
 
-  var locationURL = 'http://' + ip.address() + ':' +
-      this.configuration.httpPort + "/description.xml";
-
   var self = this;
 
-  var ssdpServer = new SSDP.Server({
-    logLevel : self.configuration.ssdpLogLevel, // 'trace',
-    log : self.configuration.ssdpLog,
-    udn : self.upnpServer.uuid,
-    description : "/description.xml",
-    location : locationURL,
-    ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
-        "UPnPServer/" + require("./package.json").version
-  });
-  this.ssdpServer = ssdpServer;
+  self.ssdpServer.start();
 
-  ssdpServer.addUSN('upnp:rootdevice');
-  ssdpServer.addUSN(upnpServer.type);
+  callback();
 
-  var self = this;
-
-  var services = upnpServer.services;
-  if (services) {
-    for (var route in services){
-      ssdpServer.addUSN(services[route].type);
-    };
-  }
-
-  var httpServer = http.createServer();
-  this.httpServer = httpServer;
-
-  httpServer.on('request', this._processRequest.bind(this));
-
-  var self = this;
-  httpServer.listen(upnpServer.port, function(error) {
-    if (error) {
-      return callback(error);
-    }
-
-    self.ssdpServer.start();
-
-    self.emit("waiting");
-
-    var address = httpServer.address();
-
-    var hostname = address.address;
-    if (address.family === 'IPv6') {
-      hostname = '[' + hostname + ']';
-    }
-
-    console.log('Ready http://' + hostname + ':' + address.port);
-
-    callback();
-  });
 };
 
-/**
- * Process request
- *
- * @param {object}
- *            request
- * @param {object}
- *            response
- */
-API.prototype._processRequest = function(request, response) {
-
-  var path = url.parse(request.url).pathname;
-
-  // logger.debug("Uri=" + request.url);
-
-  var now = Date.now();
-  var self = this;
-  try {
-    this.upnpServer.processRequest(request, response, path, function(error,
-        processed) {
-
-      var stats = {
-        request : request,
-        response : response,
-        path : path,
-        processTime : Date.now() - now,
-      }
-
-      if (error) {
-        response.writeHead(500, 'Server error: ' + error);
-        response.end();
-
-        self.emit("code:500", error, stats);
-        return;
-      }
-
-      if (!processed) {
-        response.writeHead(404, 'Resource not found: ' + path);
-        response.end();
-
-        self.emit("code:404", stats);
-        return;
-      }
-
-      self.emit("code:200", stats);
-    });
-
-  } catch (error) {
-    logger.error("Process request exception", error);
-    this.emit("error", error);
-  }
-};
 
 /**
  * Stop server.
@@ -443,7 +366,7 @@ API.prototype.stop = function(callback) {
   var stopped = false;
 
   if (this.ssdpServer) {
-    this.ssdpServer = undefined;
+  //this.ssdpServer = undefined;
     stopped = true;
 
     try {
@@ -472,5 +395,55 @@ API.prototype.stop = function(callback) {
 
   callback(null, stopped);
 };
+
+
+/**
+ * Get first available external ip.
+ *
+ * @param {string|null}
+ *            ipFamily in [IPv4|IPv6] default : IPv4
+ *
+ * @param {string|null}
+ *            iface : network interface name
+ */
+API.prototype.getExternalIp = function (ipFamily, iface) {
+
+    var self = this
+    ,   ifaces = os.networkInterfaces()
+    ,   family = ipFamily || 'IPv4'
+    ;
+
+    for (var dev in ifaces) {
+        var devs = ifaces[dev]
+        if (iface && dev != iface) {
+          continue
+        }
+        for (var di in devs) {
+            var ni = devs[di]
+
+            if (ni.family != family) {
+                continue
+            }
+
+            if (ni.address == '::1') {
+                continue
+            }
+
+            if (ni.address == '127.0.0.1') {
+                continue
+            }
+
+            if (ni.internal) {
+                continue
+            }
+
+            return ni.address;
+
+        }
+    }
+    logger.error("Unable to find an external ip adress, use 127.0.0.1");
+    return '127.0.0.1';
+}
+
 
 module.exports = API;
