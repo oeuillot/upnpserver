@@ -1,7 +1,7 @@
 {
 
 	"ssdp":{
-    "LogLevel":"TRACE",
+    "LogLevel":"ERROR",
 		"Log":0,
     "ssdpTtl": 4,
     "ttl": 900,
