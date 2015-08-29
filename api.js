@@ -4,7 +4,7 @@
 var assert = require('assert');
 var events = require('events');
 var os = require('os');
-
+var Async=require('async');
 //var SSDP = require('node-ssdp');
 var SsdpServer = require('./lib/ssdp');
 
@@ -14,11 +14,11 @@ var _ = require('underscore');
 
 var logger = require('./lib/logger');
 
-var UPNPServer = require('./lib/upnpServer');
+var MediaServer = require('./lib/upnpServer');
 
 
 /**
- * upnpserver API.
+ * MediaServer API.
  *
  * @param {object}
  *            configuration
@@ -27,32 +27,46 @@ var UPNPServer = require('./lib/upnpServer');
  *
  * @constructor
  */
-var API = function(configuration, paths) {
-
+var API = function(configuration) {
+  var self = this;
   this.configuration = _.extend(this.defaultConfiguration, configuration);
+
+  this.devices = {};
 
   this.ip = this.configuration.ip ||
       this.getExternalIp(this.configuration.ipFamily, this.configuration.iface);
-
-  if (this.configuration.noDefaultConfig !== true) {
-    this.loadConfiguration("./default-config.json");
-  }
-
-  var cf = this.configuration.configurationFiles;
-  if (typeof (cf) === "string") {
-    this.loadConfigurationFile(cf);
-
-  } else if (util.isArray(cf)) {
-    for (var i = 0; i < cf.length; i++) {
-      this.loadConfiguration(cf[i]);
-    }
-  }
 
   this.ssdpServer = new SsdpServer({
     logLevel : this.configuration.ssdp.LogLevel,
     log : this.configuration.ssdp.Log,
     ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
         "UPnPServer/" + require("./package.json").version
+  });
+
+  var config = [];
+
+  // config from files
+  var cf = this.configuration.configurationFiles;
+  if (typeof (cf) === "string") {
+    var conf = require(cf);
+    config.push(conf.devices);
+  }
+
+  if (this.configuration.noDefaultConfig !== true) {
+    var conf = require("./default-config.json");
+    config.push(conf.devices);
+  }
+  // config from API arguments
+  if (this.configuration.devices){
+    config.push(this.configuration.devices);
+  }
+
+  Async.eachSeries(cf, function(config, callback){
+    self.createDevices(config, callback);
+  },
+  function(error){
+    if (error) return
+    self._StartSsdp();
   });
 
 };
@@ -65,81 +79,86 @@ util.inherits(API, events.EventEmitter);
  * @type {object}
  */
 API.prototype.defaultConfiguration = {
-  "dms":{
-    "dlnaSupport" : true,
-    "httpPort" : 10293,
-    "name" : "Node Server",
-    "version" : require("./package.json").version
+  "ssdp":{
+    "LogLevel":"TRACE",
+    "ssdpTtl": 4,
+    "ttl": 900,
+    "adInterval": 450000
+  },
+  "devices":{
+    "MediaServer":{
+      "dlnaSupport" : true,
+      "name" : "Node Server",
+      "version" : require("./package.json").version,
+      "ensableIntelToolkitSupport":false,
+      "services":{
+        "ConnectionManager":"",
+        "MediaRecieverRegistar":"",
+        "ContentDirectory":{
+          "paths":[
+            { path: '/Users/stephen/Documents', mountPoint: '/Documents' }
+          , { mountPoint:'/IceCast', type:'icecast'}
+          //, { mountPoint: '/Audio', type:'music', path:'/Users/stephen/Music'}
+          //, { mountPoint: '/Video', type:'path', path:'/Users/stephen/Movies'}
+          //, { mountPoint: '/Images', type:'path', path:'/Users/stephen/Pictures'}
+          ]
+        }
+      }
+    }
   }
 };
 
 
+API.prototype.createDevices = function(config, callback) {
 
-API.prototype.loadConfiguration = function(path) {
-  var config = require(path);
 
   var self = this;
+
+  Async.forEachOf(config, function(configuration, name, callback){
+
+    var device    = require(name);
+
+    new device(self, configuration, function(error, instance) {
+        if (error) {
+          logger.error(error);
+        }
+        self.devices[name] = instance;
+        return callback(error);
+      });
+
+  }, function(error){
+
+    if (error) return callback(error);
+    callback(null);
+
+  });
 
 }
 
 /**
  * Start server.
  */
-API.prototype.start = function() {
+API.prototype.start = function(path) {
   var self = this;
   this.stop(function() {
-    self.startServer();
+    self._StartSsdp(path);
   });
 };
 
-/**
- * Start server callback.
- *
- * @return {UPNPServer}
- */
-API.prototype.startServer = function(callback) {
-
-
-  var configuration = this.configuration.dms;
-
-  var self = this;
-
-  if (!callback) {
-    callback = function() {
-    };
-  }
-
-  var upnpServer = new UPNPServer(self.ssdpServer, self.ip, configuration,
-      function(error, upnpServer) {
-        if (error) {
-          logger.error(error);
-
-          return callback(error);
-        }
-
-        self._upnpServerStarted(upnpServer, callback);
-      });
-
-  return upnpServer;
-};
 
 /**
  * After server start.
  *
  * @param {object}
- *            upnpServer
+ *            mediaServer
  */
-API.prototype._upnpServerStarted = function(upnpServer, callback) {
+API.prototype._StartSsdp = function(callback) {
 
   this.emit("starting");
-
-  this.upnpServer = upnpServer;
 
   var self = this;
 
   self.ssdpServer.start();
-
-  callback();
 
 };
 
@@ -155,7 +174,6 @@ API.prototype.stop = function(callback) {
     return false;
   };
 
-  var httpServer = this.httpServer;
   var ssdpServer = this.ssdpServer;
   var stopped = false;
 
@@ -171,17 +189,11 @@ API.prototype.stop = function(callback) {
     }
   }
 
-  if (httpServer) {
-    this.httpServer = undefined;
-    stopped = true;
+  // TODO: stop http servers
+  Async.forEachOf(this.devices, function (device, name, callback){
 
-    try {
-      httpServer.stop();
 
-    } catch (error) {
-      logger.error(error);
-    }
-  }
+  });
 
   if (stopped) {
     this.emit("stopped");
