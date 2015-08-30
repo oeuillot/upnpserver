@@ -69,8 +69,6 @@ var API = function(configuration) {
 
   this.configuration = _.extend(defaultConfiguration, configuration);
 
-  console.log("API configuration " + util.inspect(configuration, {depth:3}));
-
   this.devices = {};
 
   this.ip = this.configuration.ip ||
@@ -82,9 +80,6 @@ var API = function(configuration) {
     ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
         "UPnPServer/" + require("./package.json").version
   });
-  var config = this.configuration;
-
-
 
   var config = [];
   /*
@@ -108,7 +103,7 @@ var API = function(configuration) {
   // console.log("config:" + util.inspect(config, {depth:3}) + "end");
 
   Async.eachSeries(config, function(devices, callback){
-    console.log("CreateDevices " + util.inspect(devices, {depth:3}));
+
     self.createDevices(devices, callback);
   },
   function(error){
@@ -168,7 +163,7 @@ API.prototype.createDevices = function(config, callback) {
 
     var deviceClass = require("./lib/" + name);
 
-    console.log("Create device %s", name);
+    logger.info("Create device %s", name);
 
     new deviceClass(self, configuration, function(error, instance) {
         if (error) {
