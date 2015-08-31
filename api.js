@@ -163,13 +163,12 @@ API.prototype.createDevices = function(config, callback) {
 
     var deviceClass = require("./lib/" + name);
 
-    logger.info("Create device %s", name);
+    logger.info("Add device %s", name);
 
     new deviceClass(self, configuration, function(error, instance) {
         if (error) {
           logger.error(error);
         }
-
         self.devices[name] = instance;
         return callback(error);
       });
