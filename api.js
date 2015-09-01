@@ -247,7 +247,6 @@ API.prototype.stop = function(callback) {
   callback(null, stopped);
 };
 
-
 /**
  * Get first available external ip.
  *
