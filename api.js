@@ -159,11 +159,13 @@ API.prototype.createDevices = function(config, callback) {
 
   var self = this;
 
-  Async.forEachOf(config, function(configuration, name, callback){
+  Async.forEachOfSeries(config, function(configuration, name, callback){
 
     var deviceClass = require("./lib/" + name);
 
     logger.info("Add device %s", name);
+
+    self.emit("device", name);
 
     new deviceClass(self, configuration, function(error, instance) {
         if (error) {
@@ -200,11 +202,8 @@ API.prototype.start = function(path) {
  *            mediaServer
  */
 API.prototype._StartSsdp = function(callback) {
-
-  this.emit("starting");
-
   this.ssdpServer.start();
-
+  this.emit("ready");
 };
 
 
