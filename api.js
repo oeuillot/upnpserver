@@ -7,7 +7,7 @@ var os = require('os');
 var Async=require('async');
 //var SSDP = require('node-ssdp');
 var SsdpServer = require('./lib/ssdp');
-
+var debug = require('debug')('api:ssdp');
 var url = require('url');
 var util = require('util');
 var _ = require('underscore');
@@ -71,15 +71,21 @@ var API = function(configuration) {
 
   this.devices = {};
 
-  this.ip = this.configuration.ip ||
-      this.getExternalIp(this.configuration.ipFamily, this.configuration.iface);
+  this.ips = this.configuration.ips ||
+      this.getExternalIps(this.configuration.ipFamily, this.configuration.iface);
 
-  this.ssdpServer = new SsdpServer({
-    logLevel : this.configuration.ssdp.LogLevel,
-    log : this.configuration.ssdp.Log || 0,
-    ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
-        "UPnPServer/" + require("./package.json").version
+  this.ssdpServers = {};
+
+  this.ips.forEach(function(host){
+    self.ssdpServers[host] = new SsdpServer({
+      unicastHost: host,
+      logLevel : self.configuration.ssdp.LogLevel,
+      log : self.configuration.ssdp.Log || 0,
+      ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
+          "UPnPServer/" + require("./package.json").version
+    });
   });
+
 
   var config = [];
   /*
@@ -198,11 +204,15 @@ API.prototype.start = function(path) {
 /**
  * After server start.
  *
- * @param {object}
- *            mediaServer
+ * @param {function}
+ *            callback
  */
 API.prototype._StartSsdp = function(callback) {
-  this.ssdpServer.start();
+  var self = this;
+  this.ips.forEach(function(host){
+    self.ssdpServers[host].start();
+  });
+
   this.emit("ready");
 };
 
@@ -247,19 +257,20 @@ API.prototype.stop = function(callback) {
 };
 
 /**
- * Get first available external ip.
+ * Get all available external ips.
  *
  * @param {string|null}
- *            ipFamily in [IPv4|IPv6] default : IPv4
+ *            ipFamily in [IPv4|IPv6] default : IPv4, use all if null
  *
  * @param {string|null}
  *            iface : network interface name
  */
-API.prototype.getExternalIp = function (ipFamily, iface) {
+API.prototype.getExternalIps = function (ipFamily, iface) {
 
     var self = this
     ,   ifaces = os.networkInterfaces()
-    ,   family = ipFamily || 'IPv4'
+    ,   family = ipFamily !== undefined ? ipFamily : "IPv4"
+    ,   ips    = []
     ;
 
     for (var dev in ifaces) {
@@ -270,7 +281,7 @@ API.prototype.getExternalIp = function (ipFamily, iface) {
         for (var di in devs) {
             var ni = devs[di]
 
-            if (ni.family != family) {
+            if (family && ni.family != family) {
                 continue
             }
 
@@ -286,12 +297,12 @@ API.prototype.getExternalIp = function (ipFamily, iface) {
                 continue
             }
 
-            return ni.address;
-
+            ips.push( ni.address );
+            console.log("API found "+ni.address);
         }
     }
-    logger.error("Unable to find an external ip adress, use 127.0.0.1");
-    return '127.0.0.1';
+    // logger.error("Unable to find an external ip adress, use 127.0.0.1");
+    return ips.length && ips || ['127.0.0.1'];
 }
 
 
