@@ -14,7 +14,9 @@
   
       "object.item.imageItem": "./lib/class/object.item.imageItem",
       "object.item.imageItem.photo": "./lib/class/object.item.imageItem.photo",
-  
+
+      "object.item.textItem": "./lib/class/object.item.textItem",
+
       "object.container.album": "./lib/class/object.container.album",
       "object.container.album.musicAlbum": "./lib/class/object.container.album.musicAlbum",
       "object.container.album.photoAlbum": "./lib/class/object.container.album.photoAlbum",
