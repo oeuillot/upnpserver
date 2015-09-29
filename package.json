@@ -20,7 +20,7 @@
     "sax": "0.4.2",
     "musicmetadata": "1.0.0",
     "mime": "1.2",
-    "send": "0.3",
+    "send": "0.13",
     "underscore": "1.6",
     "async": "1.2",
     "ip": "0.3",
