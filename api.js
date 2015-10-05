@@ -17,15 +17,16 @@ var PathRepository = require('./lib/repositories/pathRepository');
 var MusicRepository = require('./lib/repositories/musicRepository');
 var HistoryRepository = require('./lib/repositories/historyRepository');
 var IceCastRepository = require('./lib/repositories/iceCastRepository');
+var VideoRepository = require('./lib/repositories/videoRepository');
 
 /**
  * upnpserver API.
- *
+ * 
  * @param {object}
  *            configuration
  * @param {array}
  *            paths
- *
+ * 
  * @constructor
  */
 var API = function(configuration, paths) {
@@ -64,7 +65,7 @@ util.inherits(API, events.EventEmitter);
 
 /**
  * Default server configuration.
- *
+ * 
  * @type {object}
  */
 API.prototype.defaultConfiguration = {
@@ -76,7 +77,7 @@ API.prototype.defaultConfiguration = {
 
 /**
  * Initialize paths.
- *
+ * 
  * @param path
  */
 API.prototype.initPaths = function(path) {
@@ -96,6 +97,13 @@ API.prototype.initPaths = function(path) {
         throw new Error("Path must be defined '" + util.inspect(path) + "'")
       }
       this.addMusicDirectory(mountPoint, path.path);
+      break;
+
+    case "video":
+      if (!path.path) {
+        throw new Error("Path must be defined '" + util.inspect(path) + "'")
+      }
+      this.addVideoDirectory(mountPoint, path.path);
       break;
 
     case "history":
@@ -120,7 +128,7 @@ API.prototype.initPaths = function(path) {
 
 /**
  * Add simple directory.
- *
+ * 
  * @param {string}
  *            mountPoint
  * @param {string}
@@ -144,7 +152,7 @@ API.prototype.addDirectory = function(mountPoint, path) {
 
 /**
  * Add a repository.
- *
+ * 
  * @param {Repository}
  *            repository
  */
@@ -156,7 +164,7 @@ API.prototype.addRepository = function(repository) {
 
 /**
  * Add music directory.
- *
+ * 
  * @param {string}
  *            mountPoint
  * @param {string}
@@ -174,8 +182,27 @@ API.prototype.addMusicDirectory = function(mountPoint, path) {
 };
 
 /**
+ * Add video directory.
+ * 
+ * @param {string}
+ *            mountPoint
+ * @param {string}
+ *            path
+ */
+API.prototype.addVideoDirectory = function(mountPoint, path) {
+  assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
+      mountPoint + "'");
+  assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
+      "'");
+
+  var repository = new VideoRepository("video:" + path, mountPoint, path);
+
+  this.addRepository(repository);
+};
+
+/**
  * Add history directory.
- *
+ * 
  * @param {string}
  *            mountPoint
  */
@@ -190,7 +217,7 @@ API.prototype.addHistoryDirectory = function(mountPoint) {
 
 /**
  * Add iceCast.
- *
+ * 
  * @param {string}
  *            mountPoint
  * @param {object}
@@ -271,7 +298,7 @@ API.prototype.start = function() {
 
 /**
  * Start server callback.
- *
+ * 
  * @return {UPNPServer}
  */
 API.prototype.startServer = function(callback) {
@@ -309,7 +336,7 @@ API.prototype.startServer = function(callback) {
 
 /**
  * After server start.
- *
+ * 
  * @param {object}
  *            upnpServer
  */
@@ -330,8 +357,8 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
     udn : self.upnpServer.uuid,
     description : "/description.xml",
     location : locationURL,
-    ssdpSig: "Node/" + process.versions.node + " UPnP/1.0 " +
-        "UPnPServer/" + require("./package.json").version
+    ssdpSig : "Node/" + process.versions.node + " UPnP/1.0 " + "UPnPServer/" +
+        require("./package.json").version
   });
   this.ssdpServer = ssdpServer;
 
@@ -342,9 +369,10 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
 
   var services = upnpServer.services;
   if (services) {
-    for (var route in services){
+    for ( var route in services) {
       ssdpServer.addUSN(services[route].type);
-    };
+    }
+    ;
   }
 
   var httpServer = http.createServer();
@@ -377,7 +405,7 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
 
 /**
  * Process request
- *
+ * 
  * @param {object}
  *            request
  * @param {object}
@@ -429,7 +457,7 @@ API.prototype._processRequest = function(request, response) {
 
 /**
  * Stop server.
- *
+ * 
  * @param {function|null}
  *            callback
  */
