@@ -47,7 +47,12 @@
 			"mimeType": "video/*",
 			"require": "./lib/contentHandlers/af_metas",
 			"priority": -10
-		} ],
+		}, {
+          "key": "ffprobe",
+          "mimeTypes": ["video/*", "audio/*" ],
+          "require": "./lib/contentHandlers/ffprobe",
+          "priority": -20
+      } ],
 
 		"enableIntelToolkitSupport": false
 }
