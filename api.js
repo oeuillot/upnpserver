@@ -351,10 +351,14 @@ API.prototype._upnpServerStarted = function(upnpServer, callback) {
 
   var self = this;
 
+  if (this.configuration.ssdpLog && !this.configuration.ssdpLogLevel) {
+    this.configuration.ssdpLogLevel = "debug";
+  }
+
   var ssdpServer = new SSDP.Server({
-    logLevel : self.configuration.ssdpLogLevel, // 'trace',
-    log : self.configuration.ssdpLog,
-    udn : self.upnpServer.uuid,
+    logLevel : this.configuration.ssdpLogLevel, // 'trace',
+    log : this.configuration.ssdpLog,
+    udn : this.upnpServer.uuid,
     description : "/description.xml",
     location : locationURL,
     ssdpSig : "Node/" + process.versions.node + " UPnP/1.0 " + "UPnPServer/" +

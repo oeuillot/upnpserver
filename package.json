@@ -18,7 +18,7 @@
     "jstoxml": "0.2",
     "node-uuid": "1.4",
     "sax": "0.4.2",
-    "musicmetadata": "1.0.0",
+    "musicmetadata": "^2.0.2",
     "mime": "1.2",
     "send": "0.13",
     "underscore": "1.6",
@@ -28,7 +28,8 @@
 	  "debug": "2.2",
 	  "follow-redirects": "0.0.3",
 	  "semaphore": "1.0.3",
-	  "nedb": "1.1.2"
+	  "nedb": "latest",
+	    "mkdirp": "latest"
   },
   "keywords": [
     "Node.js",
