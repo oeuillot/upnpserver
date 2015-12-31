@@ -284,7 +284,7 @@ API.prototype.loadConfiguration = function(path) {
       self.addDirectory(mountPoint, directory);
     }
   }
-}
+};
 
 /**
  * Start server.
