@@ -1,58 +1,63 @@
 {
-	"upnpClasses": {
-		"object.item": "./lib/class/object.item",
-		"object.container": "./lib/class/object.container",
+  "upnpClasses": {
+    "object.item": "./lib/class/object.item",
+    "object.container": "./lib/class/object.container",
 
-		"object.item.audioItem": "./lib/class/object.item.audioItem",
-      "object.item.audioItem.musicTrack": "./lib/class/object.item.audioItem.musicTrack",
-      "object.item.audioItem.audioBroadcast": "./lib/class/object.item.audioItem.audioBroadcast",
-  
-      "object.item.videoItem": "./lib/class/object.item.videoItem",
-      "object.item.videoItem.movie": "./lib/class/object.item.videoItem.movie",
-      "object.item.videoItem.musicVideoClip": "./lib/class/object.item.videoItem.musicVideoClip",
-      "object.item.videoItem.videoBroadcast": "./lib/class/object.item.videoItem.videoBroadcast",
-  
-      "object.item.imageItem": "./lib/class/object.item.imageItem",
-      "object.item.imageItem.photo": "./lib/class/object.item.imageItem.photo",
+    "object.item.audioItem": "./lib/class/object.item.audioItem",
+    "object.item.audioItem.musicTrack": "./lib/class/object.item.audioItem.musicTrack",
+    "object.item.audioItem.audioBroadcast": "./lib/class/object.item.audioItem.audioBroadcast",
 
-      "object.item.textItem": "./lib/class/object.item.textItem",
+    "object.item.videoItem": "./lib/class/object.item.videoItem",
+    "object.item.videoItem.movie": "./lib/class/object.item.videoItem.movie",
+    "object.item.videoItem.musicVideoClip": "./lib/class/object.item.videoItem.musicVideoClip",
+    "object.item.videoItem.videoBroadcast": "./lib/class/object.item.videoItem.videoBroadcast",
 
-      "object.container.album": "./lib/class/object.container.album",
-      "object.container.album.musicAlbum": "./lib/class/object.container.album.musicAlbum",
-      "object.container.album.photoAlbum": "./lib/class/object.container.album.photoAlbum",
-      "object.container.album.photoAlbum.dateTaken": "./lib/class/object.container.album.photoAlbum.dateTaken",
-      "object.container.album.videoAlbum": "./lib/class/object.container.album.videoAlbum",
-  
-      "object.container.person":  "./lib/class/object.container.person",
-      "object.container.person.musicArtist": "./lib/class/object.container.person.musicArtist",
-      "object.container.person.movieActor": "./lib/class/object.container.person.movieActor",
-  
-      "object.container.genre":  "./lib/class/object.container.genre",
-      "object.container.genre.musicGenre": "./lib/class/object.container.genre.musicGenre",
-      "object.container.genre.videoGenre": "./lib/class/object.container.genre.videoGenre",
-  
-      "object.container.playlistContainer": "./lib/class/object.container.playlistContainer"
-	},
+    "object.item.imageItem": "./lib/class/object.item.imageItem",
+    "object.item.imageItem.photo": "./lib/class/object.item.imageItem.photo",
 
-	"contentHandlers": [ {
-			"key": "matroska",
-			"mimeType": "video/x-matroska",
-		  "require": "./lib/contentHandlers/video_matroska"
-		}, {
-			"key": "musicmetadata",
-			"mimeType": "audio/*",
-			"require": "./lib/contentHandlers/audio_musicmetadata"
-		}, {
-			"key": "af_metas",
-			"mimeType": "video/*",
-			"require": "./lib/contentHandlers/af_metas",
-			"priority": -10
-		}, {
-          "key": "ffprobe",
-          "mimeTypes": ["video/*", "audio/*" ],
-          "require": "./lib/contentHandlers/ffprobe",
-          "priority": -20
-      } ],
+    "object.item.textItem": "./lib/class/object.item.textItem",
 
-		"enableIntelToolkitSupport": false
+    "object.container.album": "./lib/class/object.container.album",
+    "object.container.album.musicAlbum": "./lib/class/object.container.album.musicAlbum",
+    "object.container.album.photoAlbum": "./lib/class/object.container.album.photoAlbum",
+    "object.container.album.photoAlbum.dateTaken": "./lib/class/object.container.album.photoAlbum.dateTaken",
+    "object.container.album.videoAlbum": "./lib/class/object.container.album.videoAlbum",
+
+    "object.container.person":  "./lib/class/object.container.person",
+    "object.container.person.musicArtist": "./lib/class/object.container.person.musicArtist",
+    "object.container.person.movieActor": "./lib/class/object.container.person.movieActor",
+
+    "object.container.genre":  "./lib/class/object.container.genre",
+    "object.container.genre.musicGenre": "./lib/class/object.container.genre.musicGenre",
+    "object.container.genre.videoGenre": "./lib/class/object.container.genre.videoGenre",
+
+    "object.container.playlistContainer": "./lib/class/object.container.playlistContainer"
+  },
+
+  "contentHandlers": [ {
+    "key": "matroska",
+    "mimeType": "video/x-matroska",
+    "require": "./lib/contentHandlers/video_matroska"
+  }, {
+    "key": "musicmetadata",
+    "mimeType": "audio/*",
+    "require": "./lib/contentHandlers/audio_musicmetadata"
+  }, {
+    "key": "af_metas",
+    "mimeType": "video/*",
+    "require": "./lib/contentHandlers/af_metas",
+    "priority": -10
+  }, {
+    "key": "ffprobe",
+    "mimeTypes": ["video/*", "audio/*" ],
+    "require": "./lib/contentHandlers/ffprobe",
+    "priority": -20
+  }, {
+    "key": "srt",
+    "mimeType": "video/*",
+    "require": "./lib/contentHandlers/srt",
+    "priority": 0
+  } ],
+
+  "enableIntelToolkitSupport": false
 }
