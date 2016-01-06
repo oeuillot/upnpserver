@@ -17,7 +17,7 @@ var DirectoryRepository = require('./lib/repositories/directoryRepository');
 var MusicRepository = require('./lib/repositories/musicRepository');
 var HistoryRepository = require('./lib/repositories/historyRepository');
 var IceCastRepository = require('./lib/repositories/iceCastRepository');
-var VideoRepository = require('./lib/repositories/videoRepository');
+var MovieRepository = require('./lib/repositories/movieRepository');
 
 class API extends events.EventEmitter {
 
@@ -193,7 +193,7 @@ class API extends events.EventEmitter {
     assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
     "'");
 
-    var repository = new VideoRepository("video:" + path, mountPoint, path);
+    var repository = new MovieRepository("video:" + path, mountPoint, path);
 
     this.addRepository(repository);
   }
