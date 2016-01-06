@@ -262,7 +262,6 @@ class API extends events.EventEmitter {
         var configuration = contentHandler.configuration || {};
 
         var ch = new clazz(configuration);
-        ch.key = contentHandler.key || cs.length;
         ch.priority = contentHandler.priority || 0;
         ch.mimeTypes = mimeTypes;
 
