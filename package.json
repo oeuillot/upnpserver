@@ -1,6 +1,6 @@
 {
   "name": "upnpserver",
-  "version": "2.1.3",
+  "version": "3.0.0",
   "description": "Simple Upnpserver server. It supports several audio tags (id3,...) and matroska metadatas.",
   "main": "api.js",
   "repository": {
@@ -11,10 +11,10 @@
     "url": "https://github.com/oeuillot/upnpserver/issues"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.2.0"
   },
   "dependencies": {
-    "node-ssdp": "^2.6.3",
+    "node-ssdp": "^2.7.0",
     "jstoxml": "0.2",
     "node-uuid": "1.4",
     "sax": "0.4.2",
@@ -24,23 +24,22 @@
     "underscore": "1.6",
     "async": "1.2",
     "ip": "0.3",
-	  "matroska": "2.2.2",
-	  "debug": "2.2",
-	  "follow-redirects": "0.0.3",
-	  "semaphore": "1.0.3",
-	  "nedb": "latest",
-	    "mkdirp": "latest"
+    "matroska": "2.2.2",
+    "debug": "2.2",
+    "follow-redirects": "0.0.3",
+    "nedb": "latest",
+    "mkdirp": "latest"
   },
   "keywords": [
-    "Node.js",
-    "ushare",
-    "mediatomb",
-    "upnp"
-  ],
-  "author": "Olivier Oeuillot",
-  "license": "GPL",
-  "readmeFilename": "README.md",
-  "devDependencies": {
-    "mocha": "~2.1.0"
-  }
+               "Node.js",
+               "ushare",
+               "mediatomb",
+               "upnp"
+               ],
+   "author": "Olivier Oeuillot",
+   "license": "GPL",
+   "readmeFilename": "README.md",
+   "devDependencies": {
+     "mocha": "~2.1.0"
+   }
 }

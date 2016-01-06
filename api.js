@@ -13,7 +13,7 @@ var _ = require('underscore');
 var logger = require('./lib/logger');
 
 var UPNPServer = require('./lib/upnpServer');
-var PathRepository = require('./lib/repositories/pathRepository');
+var DirectoryRepository = require('./lib/repositories/directoryRepository');
 var MusicRepository = require('./lib/repositories/musicRepository');
 var HistoryRepository = require('./lib/repositories/historyRepository');
 var IceCastRepository = require('./lib/repositories/iceCastRepository');
@@ -143,7 +143,7 @@ class API extends events.EventEmitter {
 
     assert(typeof (path) === "string", "Invalid path parameter '" + mountPoint +"'");
 
-    var repository = new PathRepository("path:" + path, mountPoint, path);
+    var repository = new DirectoryRepository("path:" + path, mountPoint, path);
 
     this.addRepository(repository);
   }
