@@ -27,11 +27,13 @@
     "node-uuid": "1.4",
     "sax": "0.4.2",
     "send": "0.13",
-    "underscore": "1.6"
+    "underscore": "1.6",
+    "range-parser": "^1.0.3"
   },
   "peerDependencies": {
     "nedb": "^1.5.0",
-    "mongodb": "^2.1.3"
+    "mongodb": "^2.1.3",
+    "exif": "latest"
   },
   "keywords": [
     "Node.js",

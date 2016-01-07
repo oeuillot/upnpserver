@@ -57,6 +57,11 @@
     "mimeType": "video/*",
     "require": "./lib/contentHandlers/srt",
     "priority": 0
+  }, {
+    "key": "exif",
+    "mimeTypes": ["image/jpeg", "image/jp2" ],
+    "require": "./lib/contentHandlers/exif",
+    "priority": -10
   } ],
 
   "enableIntelToolkitSupport": false
