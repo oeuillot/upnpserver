@@ -38,6 +38,7 @@ class API extends events.EventEmitter {
     this.directories = [];
     this._upnpClasses = {};
     this._contentHandlers = [];
+    this._contentProviders = {};
     this._contentHandlersKey = 0;
 
     if (typeof (paths) === "string") {
@@ -53,7 +54,8 @@ class API extends events.EventEmitter {
 
     var cf = this.configuration.configurationFiles;
     if (typeof (cf) === "string") {
-      this.loadConfigurationFile(cf);
+      var toks=cf.split(',');
+      toks.forEach((tok) => this.loadConfiguration(tok));
 
     } else if (util.isArray(cf)) {
       cf.forEach((c) => this.loadConfiguration(c));
@@ -230,6 +232,9 @@ class API extends events.EventEmitter {
     this.addRepository(repository);
   }
 
+  /**
+   * 
+   */
   loadConfiguration(path) {
     var config = require(path);
 
@@ -245,9 +250,7 @@ class API extends events.EventEmitter {
     }
 
     var contentHandlers = config.contentHandlers;
-    if (contentHandlers) {
-      var cs = this._contentHandlers;
-
+    if (contentHandlers instanceof Array) {
       contentHandlers.forEach((contentHandler) => {
 
         var mimeTypes = contentHandler.mimeTypes || [];
@@ -256,16 +259,72 @@ class API extends events.EventEmitter {
           mimeTypes = mimeTypes.slice(0);
           mimeTypes.push(contentHandler.mimeType);
         }
+        
+        var requirePath=contentHandler.require;
+        if (!requirePath) {
+          requirePath="./lib/contentHandlers/"+contentHandler.type;
+        }
+        if (!requirePath) {
+          logger.error("Require path is not defined !");
+          return;
+        }
 
-        var clazz = require(contentHandler.require);
+        var clazz = require(requirePath);
+        if (!clazz) {
+          logger.error("Class of contentHandler must be specified");
+          return;
+        }
 
         var configuration = contentHandler.configuration || {};
 
-        var ch = new clazz(configuration);
+        var ch = new clazz(configuration, mimeTypes);
         ch.priority = contentHandler.priority || 0;
         ch.mimeTypes = mimeTypes;
 
-        cs.push(ch);
+        this._contentHandlers.push(ch);
+      });
+    }
+
+    var contentProviders = config.contentProviders;
+    if (contentProviders instanceof Array) {
+
+      contentProviders.forEach((contentProvider) => {
+        var protocol = contentProvider.protocol;
+        if (!protocol) {
+          logger.error("Protocol property must be defined for contentProvider "+contentProvider.id+"'.");
+          return;
+        }
+        if (protocol in this._contentProviders) {
+          logger.error("Protocol '"+protocol+"' is already known");
+          return;
+        }
+
+        var name=contentProvider.name || protocol;
+
+        var requirePath=contentProvider.require;
+        if (!requirePath) {
+          var type=contentProvider.type || protocol;
+          
+          requirePath="./lib/contentProviders/"+type;
+        }
+        if (!requirePath) {
+          logger.error("Require path is not defined !");
+          return;
+        }
+
+        var clazz = require(requirePath);
+        if (!clazz) {
+          logger.error("Class of contentHandler must be specified");
+          return;
+        }
+
+        var configuration = contentProvider.configuration || {};
+
+        var ch = new clazz(configuration, protocol);
+        ch.protocol = protocol;
+        ch.name=name;
+
+        this._contentProviders[protocol]=ch;
       });
     }
 
@@ -307,22 +366,22 @@ class API extends events.EventEmitter {
     configuration.contentHandlers = this._contentHandlers;
     configuration.contentProviders = this._contentProviders;
 
-    var self = this;
-
     if (!callback) {
-      callback = function() {
+      callback = (error) => {
+        if (error) {
+          logger.error(error);
+        }
       };
     }
 
-    var upnpServer = new UPNPServer(configuration.httpPort, configuration,
-        function(error, upnpServer) {
+    var upnpServer = new UPNPServer(configuration.httpPort, configuration, (error, upnpServer) => {
       if (error) {
-        logger.error(error);
+        logger.error("Can not start UPNPServer", error);
 
         return callback(error);
       }
 
-      self._upnpServerStarted(upnpServer, callback);
+      this._upnpServerStarted(upnpServer, callback);
     });
 
     return upnpServer;
@@ -452,7 +511,7 @@ class API extends events.EventEmitter {
    *            callback
    */
   stop(callback) {
-    callback = callback || function() {
+    callback = callback || () => {
       return false;
     };
 
