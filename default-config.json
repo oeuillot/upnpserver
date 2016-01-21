@@ -37,32 +37,39 @@
   "contentHandlers": [ {
     "key": "matroska",
     "mimeType": "video/x-matroska",
-    "require": "./lib/contentHandlers/video_matroska"
+    "type": "video_matroska"
   }, {
     "key": "musicmetadata",
     "mimeType": "audio/*",
-    "require": "./lib/contentHandlers/audio_musicmetadata"
+    "type": "audio_musicmetadata"
   }, {
     "key": "af_metas",
     "mimeType": "video/*",
-    "require": "./lib/contentHandlers/af_metas",
+    "type": "af_metas",
     "priority": -10
   }, {
     "key": "ffprobe",
     "mimeTypes": ["video/*", "audio/*" ],
-    "require": "./lib/contentHandlers/ffprobe",
+    "type": "ffprobe",
     "priority": -20
   }, {
     "key": "srt",
     "mimeType": "video/*",
-    "require": "./lib/contentHandlers/srt",
+    "type": "srt",
     "priority": 0
   }, {
     "key": "exif",
     "mimeTypes": ["image/jpeg", "image/jp2" ],
-    "require": "./lib/contentHandlers/exif",
+    "type": "exif",
     "priority": -10
   } ],
 
-  "enableIntelToolkitSupport": false
+  "enableIntelToolkitSupport": false,
+  
+  "contentProviders": [ {
+      "name": "file",
+      "protocol": "file",
+      "type": "file"
+    }
+  ]
 }
