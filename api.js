@@ -1,23 +1,25 @@
 /*jslint node: true, nomen: true, esversion: 6 */
 "use strict";
 
-var assert = require('assert');
-var events = require('events');
-var http = require('http');
-var ip = require('ip');
-var SSDP = require('node-ssdp');
-var url = require('url');
-var util = require('util');
-var _ = require('underscore');
+const assert = require('assert');
+const events = require('events');
+const http = require('http');
+const ip = require('ip');
+const SSDP = require('node-ssdp');
+const url = require('url');
+const util = require('util');
+const _ = require('underscore');
 
-var logger = require('./lib/logger');
+const debug = require('debug')('upnpserver:api');
+const logger = require('./lib/logger');
 
-var UPNPServer = require('./lib/upnpServer');
-var DirectoryRepository = require('./lib/repositories/directoryRepository');
-var MusicRepository = require('./lib/repositories/musicRepository');
-var HistoryRepository = require('./lib/repositories/historyRepository');
-var IceCastRepository = require('./lib/repositories/iceCastRepository');
-var MovieRepository = require('./lib/repositories/movieRepository');
+const UPNPServer = require('./lib/upnpServer');
+const DirectoryRepository = require('./lib/repositories/directoryRepository');
+const MusicRepository = require('./lib/repositories/musicRepository');
+const HistoryRepository = require('./lib/repositories/historyRepository');
+const IceCastRepository = require('./lib/repositories/iceCastRepository');
+const MovieRepository = require('./lib/repositories/movieRepository');
+const Repository = require('./lib/repositories/repository');
 
 class API extends events.EventEmitter {
 
@@ -119,7 +121,7 @@ class API extends events.EventEmitter {
         if (!path.path) {
           throw new Error("Path must be defined '" + util.inspect(path) + "'");
         }
-      this.addDirectory(mountPoint, path.path);
+        this.addDirectory(mountPoint, path.path);
       }
       return;
     }
@@ -145,7 +147,7 @@ class API extends events.EventEmitter {
 
     assert(typeof (path) === "string", "Invalid path parameter '" + mountPoint +"'");
 
-    var repository = new DirectoryRepository("path:" + path, mountPoint, path);
+    var repository = new DirectoryRepository(mountPoint, path);
 
     this.addRepository(repository);
   }
@@ -157,7 +159,7 @@ class API extends events.EventEmitter {
    *            repository
    */
   addRepository(repository) {
-    assert(repository, "Invalid repository parameter '" + repository + "'");
+    assert(repository instanceof Repository, "Invalid repository parameter '" + repository + "'");
 
     this.directories.push(repository);
   }
@@ -176,7 +178,7 @@ class API extends events.EventEmitter {
     assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
     "'");
 
-    var repository = new MusicRepository("music:" + path, mountPoint, path);
+    var repository = new MusicRepository(mountPoint, path);
 
     this.addRepository(repository);
   }
@@ -190,12 +192,10 @@ class API extends events.EventEmitter {
    *            path
    */
   addVideoDirectory(mountPoint, path) {
-    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
-        mountPoint + "'");
-    assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
-    "'");
+    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" + mountPoint + "'");
+    assert(typeof path === "string", "Invalid path parameter '" + mountPoint + "'");
 
-    var repository = new MovieRepository("video:" + path, mountPoint, path);
+    var repository = new MovieRepository(mountPoint, path);
 
     this.addRepository(repository);
   }
@@ -207,10 +207,9 @@ class API extends events.EventEmitter {
    *            mountPoint
    */
   addHistoryDirectory(mountPoint) {
-    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
-        mountPoint + "'");
+    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" + mountPoint + "'");
 
-    var repository = new HistoryRepository(null, mountPoint);
+    var repository = new HistoryRepository(mountPoint);
 
     this.addRepository(repository);
   }
@@ -227,7 +226,7 @@ class API extends events.EventEmitter {
     assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
         mountPoint + "'");
 
-    var repository = new IceCastRepository("iceCast", mountPoint);
+    var repository = new IceCastRepository(mountPoint);
 
     this.addRepository(repository);
   }
@@ -355,6 +354,7 @@ class API extends events.EventEmitter {
    * @return {UPNPServer}
    */
   startServer(callback) {
+    callback=callback || () => {};
 
     if (!this.directories.length) {
       return callback(new Error("No directories defined !"));
