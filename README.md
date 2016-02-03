@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/oeuillot/upnpserver.svg?branch=master)](https://travis-ci.org/oeuillot/upnpserver)
+[![Build Status][travis-image]][travis-url] [![NPM version][npm-image]][npm-url] 
 
 # upnpserver
 ![upnpserver icon](icon/icon_128.png)
@@ -71,3 +71,10 @@ Olivier Oeuillot
 ## Contributors
 
 https://github.com/oeuillot/upnpserver/graphs/contributors
+
+[npm-url]: https://npmjs.org/package/upnpserver
+[npm-image]: https://badge.fury.io/js/upnpserver.svg
+[npm-downloads-image]: http://img.shields.io/npm/dm/upnpserver.svg
+
+[travis-url]: https://travis-ci.org/oeuillot/upnpserver
+[travis-image]: https://api.travis-ci.org/oeuillot/upnpserver.svg?branch=master
