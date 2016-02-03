@@ -51,6 +51,6 @@
     "mocha": "~2.1.0"
  },
  "scripts": {
-   "test": "./node_modules/.bin/jshint src/"
+   "test": "./node_modules/.bin/jshint lib/"
  }
 }
