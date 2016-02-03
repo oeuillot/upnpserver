@@ -8,6 +8,7 @@
   "unused":    true,
   "lastsemic": true,
   "laxcomma":  true,
+  "unused":  false,
   "indent":    2,
   "globals":   {
     "describe": false,
