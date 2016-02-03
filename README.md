@@ -1,5 +1,8 @@
+[![Build Status](https://travis-ci.org/oeuillot/upnpserver.svg?branch=master)](https://travis-ci.org/oeuillot/upnpserver)
+
 # upnpserver
 ![upnpserver icon](icon/icon_128.png)
+
 
 UpnpServer is a fast and light UPnP server written in NodeJS.
 This version does not need an external database (mysql, mongodb), it stores all information in memory.
