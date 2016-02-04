@@ -29,9 +29,7 @@
     "range-parser": "^1.0.3",
     "request": "latest",
     "sax": "0.4.2",
-    "semaphore": "^1.0.3",
-    "send": "0.13",
-    "underscore": "1.6"
+    "send": "0.13"
   },
   "optionalDependencies": {
     "nedb": "^1.5.0",

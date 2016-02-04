@@ -8,17 +8,11 @@ const ip = require('ip');
 const SSDP = require('node-ssdp');
 const url = require('url');
 const util = require('util');
-const _ = require('underscore');
 
 const debug = require('debug')('upnpserver:api');
 const logger = require('./lib/logger');
 
 const UPNPServer = require('./lib/upnpServer');
-const DirectoryRepository = require('./lib/repositories/directoryRepository');
-const MusicRepository = require('./lib/repositories/musicRepository');
-const HistoryRepository = require('./lib/repositories/historyRepository');
-const IceCastRepository = require('./lib/repositories/iceCastRepository');
-const MovieRepository = require('./lib/repositories/movieRepository');
 const Repository = require('./lib/repositories/repository');
 
 class API extends events.EventEmitter {
@@ -36,8 +30,8 @@ class API extends events.EventEmitter {
   constructor(configuration, paths) {
     super();
     
-    this.configuration = _.extend(this.defaultConfiguration, configuration);
-    this.directories = [];
+    this.configuration = Object.assign({}, this.defaultConfiguration, configuration);
+    this.repositories = [];
     this._upnpClasses = {};
     this._contentHandlers = [];
     this._contentProviders = {};
@@ -81,75 +75,57 @@ class API extends events.EventEmitter {
   /**
    * Initialize paths.
    * 
-   * @param path
+   * @param {string|object} path
+   * @returns {Repository} the created repository
    */
   initPaths(path) {
     if (typeof (path) === "string") {
-      this.addDirectory("/", path);
-      return;
+      return this.addDirectory("/", path);
     }
-
-    if (typeof (path) === "object") {
-      var mountPoint = path.mountPoint || "/";
-
-      var type = path.type && path.type.toLowerCase();
-
-      switch (type) {
-      case "music":
-        if (!path.path) {
-          throw new Error("Path must be defined '" + util.inspect(path) + "'");
-        }
-        this.addMusicDirectory(mountPoint, path.path);
-        break;
-
-      case "video":
-        if (!path.path) {
-          throw new Error("Path must be defined '" + util.inspect(path) + "'");
-        }
-        this.addVideoDirectory(mountPoint, path.path);
-        break;
-
-      case "history":
-        this.addHistoryDirectory(mountPoint);
-        break;
-
-      case "icecast":
-        this.addIceCast(mountPoint);
-        break;
-
-      default:
-        if (!path.path) {
-          throw new Error("Path must be defined '" + util.inspect(path) + "'");
-        }
-        this.addDirectory(mountPoint, path.path);
+    if (typeof(path)==="object") {
+      if (path.type==="video") {
+        path.type="movie";
       }
+      
+      return this.declareRepository(path);
+    }    
+
+    throw new Error("Invalid path '" + util.inspect(path) + "'");  
+  }
+  
+  /**
+   * Declare a repository
+   * 
+   *  @param {object} the configuration
+   *  @returns {Repository} the new repository
+   */
+  declareRepository(configuration) {
+    var config=Object.assign({}, configuration);
+    
+    var mountPath = config.mountPoint || config.mountPath || "/";
+
+    var type = config.type && config.type.toLowerCase();
+    if (!type) {
+      logger.error("Type is not specified, assume it is a 'directory' type");
+      type = "directory";
+    }
+    
+    var requirePath=configuration.require;
+    if (!requirePath) {
+      requirePath="./lib/repositories/"+type;
+    }
+
+    debug("declareRepository", "requirePath=",requirePath,"mountPath=",mountPath,"config=",config);
+      
+    var clazz = require(requirePath);
+    if (!clazz) {
+      logger.error("Class of repository must be specified");
       return;
     }
-
-    throw new Error("Invalid path '" + util.inspect(path) + "'");
-  }
-
-  /**
-   * Add simple directory.
-   * 
-   * @param {string}
-   *            mountPoint
-   * @param {string}
-   *            path
-   */
-  addDirectory(mountPoint, path) {
-    assert(typeof (mountPoint) === "string", "Invalid mountPoint parameter '" +
-        mountPoint + "'");
-
-    if (typeof (path) === "object") {
-      // TODO
-    }
-
-    assert(typeof (path) === "string", "Invalid path parameter '" + mountPoint +"'");
-
-    var repository = new DirectoryRepository(mountPoint, path);
-
-    this.addRepository(repository);
+    
+    var repository = new clazz(mountPath, config);
+    
+    return this.addRepository(repository);
   }
 
   /**
@@ -157,78 +133,110 @@ class API extends events.EventEmitter {
    * 
    * @param {Repository}
    *            repository
+   *            
+   * @returns {Repository} a Repository object
    */
   addRepository(repository) {
     assert(repository instanceof Repository, "Invalid repository parameter '" + repository + "'");
 
-    this.directories.push(repository);
+    this.repositories.push(repository);
+    
+    return repository;
+  }
+
+  /**
+   * Add simple directory.
+   * 
+   * @param {string}
+   *            mountPath
+   * @param {string}
+   *            path
+   *            
+   * @returns {Repository} a Repository object
+   */
+  addDirectory(mountPath, path, configuration) {
+    assert.equal(typeof (mountPath), "string", "Invalid mountPoint parameter '" +
+        mountPath + "'");
+
+    assert.equal(typeof (path), "string", "Invalid path parameter '" + path +"'");
+
+    configuration=Object.assign({}, configuration, { mountPath, path, type: "directory"});
+
+    return this.declareRepository(configuration);
   }
 
   /**
    * Add music directory.
    * 
    * @param {string}
-   *            mountPoint
+   *            mountPath
    * @param {string}
    *            path
+   *            
+   * @returns {Repository} a Repository object
    */
-  addMusicDirectory(mountPoint, path) {
-    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
-        mountPoint + "'");
-    assert(typeof path === "string", "Invalid path parameter '" + mountPoint +
-    "'");
+  addMusicDirectory(mountPath, path, configuration) {
+    assert.equal(typeof mountPoint, "string", "Invalid mountPoint parameter '" +
+        mountPath + "'");
+    assert.equal(typeof path, "string", "Invalid path parameter '" + mountPath + "'");
 
-    var repository = new MusicRepository(mountPoint, path);
+    configuration=Object.assign({}, configuration, { mountPath, path, type: "music"});
 
-    this.addRepository(repository);
+    return this.declareRepository(configuration);
   }
 
   /**
    * Add video directory.
    * 
    * @param {string}
-   *            mountPoint
+   *            mountPath
    * @param {string}
    *            path
+   *            
+   * @returns {Repository} a Repository object
    */
-  addVideoDirectory(mountPoint, path) {
-    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" + mountPoint + "'");
-    assert(typeof path === "string", "Invalid path parameter '" + mountPoint + "'");
+  addVideoDirectory(mountPath, path, configuration) {
+    assert.equal(typeof mountPath, "string", "Invalid mountPoint parameter '" + mountPath + "'");
+    assert.equal(typeof path, "string", "Invalid path parameter '" + path + "'");
 
-    var repository = new MovieRepository(mountPoint, path);
+    configuration=Object.assign({}, configuration, { mountPath, path, type: "movie"});
 
-    this.addRepository(repository);
+    return this.declareRepository(configuration);
   }
 
   /**
    * Add history directory.
    * 
    * @param {string}
-   *            mountPoint
+   *            mountPath
+   *            
+   * @returns {Repository} a Repository object
    */
-  addHistoryDirectory(mountPoint) {
-    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" + mountPoint + "'");
+  addHistoryDirectory(mountPath, configuration) {
+    assert.equal(typeof mountPath, "string", "Invalid mountPoint parameter '" + mountPath + "'");
 
-    var repository = new HistoryRepository(mountPoint);
+    configuration=Object.assign({}, configuration, { mountPath, type: "history"});
 
-    this.addRepository(repository);
+    return this.declareRepository(configuration);
   }
 
   /**
    * Add iceCast.
    * 
    * @param {string}
-   *            mountPoint
+   *            mountPath
    * @param {object}
-   *            medias (icecasts medias)
+   *            configuration 
+   *            
+   * @returns {Repository} a Repository object
    */
-  addIceCast(mountPoint) {
-    assert(typeof mountPoint === "string", "Invalid mountPoint parameter '" +
-        mountPoint + "'");
+  addIceCast(mountPath, configuration) {
+    assert.equal(typeof mountPath, "string", "Invalid mountPoint parameter '" +
+        mountPath + "'");
 
-    var repository = new IceCastRepository(mountPoint);
+    configuration=Object.assign({}, configuration, { mountPath, type: "iceCast"});
 
-    this.addRepository(repository);
+    return this.declareRepository(configuration);
   }
 
   /**
@@ -286,7 +294,6 @@ class API extends events.EventEmitter {
 
     var contentProviders = config.contentProviders;
     if (contentProviders instanceof Array) {
-
       contentProviders.forEach((contentProvider) => {
         var protocol = contentProvider.protocol;
         if (!protocol) {
@@ -317,7 +324,7 @@ class API extends events.EventEmitter {
           return;
         }
 
-        var configuration = contentProvider.configuration || {};
+        var configuration = Object.assign({}, contentProvider);
 
         var ch = new clazz(configuration, protocol);
         ch.protocol = protocol;
@@ -327,15 +334,9 @@ class API extends events.EventEmitter {
       });
     }
 
-    var directories = config.directories;
-    if (directories) {
-      for ( var key in directories) {
-        var directory = directories[key];
-
-        var mountPoint = directory.mountPoint;
-
-        this.addDirectory(mountPoint, directory);
-      }
+    var repositories = config.repositories;
+    if (repositories) {
+      repositories.forEach((configuration) => this.declareRepository(configuration));
     }
   }
 
@@ -355,13 +356,14 @@ class API extends events.EventEmitter {
    */
   startServer(callback) {
     callback=callback || () => {};
+    debug("startServer", "Start the server");
 
-    if (!this.directories.length) {
+    if (!this.repositories.length) {
       return callback(new Error("No directories defined !"));
     }
 
     var configuration = this.configuration;
-    configuration.repositories = this.directories;
+    configuration.repositories = this.repositories;
     configuration.upnpClasses = this._upnpClasses;
     configuration.contentHandlers = this._contentHandlers;
     configuration.contentProviders = this._contentProviders;
@@ -380,6 +382,8 @@ class API extends events.EventEmitter {
 
         return callback(error);
       }
+
+      debug("startServer", "Server started ...");
 
       this._upnpServerStarted(upnpServer, callback);
     });
@@ -405,16 +409,20 @@ class API extends events.EventEmitter {
     if (this.configuration.ssdpLog && !this.configuration.ssdpLogLevel) {
       this.configuration.ssdpLogLevel = "debug";
     }
+    
+    var config={
+        logLevel : this.configuration.ssdpLogLevel, // 'trace',
+        log : this.configuration.ssdpLog,
+        udn : this.upnpServer.uuid,
+        description : "/description.xml",
+        location : locationURL,
+        ssdpSig : "Node/" + process.versions.node + " UPnP/1.0 " + "UPnPServer/" +
+        require("./package.json").version
+      };
+    
+    debug("_upnpServerStarted", "New SSDP server config=",config);
 
-    var ssdpServer = new SSDP.Server({
-      logLevel : this.configuration.ssdpLogLevel, // 'trace',
-      log : this.configuration.ssdpLog,
-      udn : this.upnpServer.uuid,
-      description : "/description.xml",
-      location : locationURL,
-      ssdpSig : "Node/" + process.versions.node + " UPnP/1.0 " + "UPnPServer/" +
-      require("./package.json").version
-    });
+    var ssdpServer = new SSDP.Server(config);
     this.ssdpServer = ssdpServer;
 
     ssdpServer.addUSN('upnp:rootdevice');
@@ -427,6 +435,8 @@ class API extends events.EventEmitter {
       }
     }
 
+    debug("_upnpServerStarted", "New Http server port=",upnpServer.port);
+    
     var httpServer = http.createServer();
     this.httpServer = httpServer;
 
@@ -436,12 +446,14 @@ class API extends events.EventEmitter {
       if (error) {
         return callback(error);
       }
-
+      
       this.ssdpServer.start();
 
       this.emit("waiting");
 
       var address = httpServer.address();
+
+      debug("_upnpServerStarted", "Http server is listening on address=",address);
 
       var hostname = address.address;
       if (address.family === 'IPv6') {
