@@ -1,0 +1,7 @@
+{
+  "repositories": [ {
+      "type": "icecast",
+      "mountPath": "/" 
+    }
+  ]
+}

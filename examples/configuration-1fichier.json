@@ -1,0 +1,14 @@
+{
+  "contentProviders": [ {
+      "protocol": "1fichier",
+      "username": "${1FICHIER_USERNAME}",
+      "password": "${1FICHIER_PASSWORD}"
+    }
+  ],
+  "repositories": [ {
+      "type": "music",
+      "path": "1fichier:/",
+      "mountPath": "/music" 
+    }
+  ]
+}
