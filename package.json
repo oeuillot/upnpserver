@@ -27,9 +27,10 @@
     "node-ssdp": "^2.7.0",
     "node-uuid": "1.4",
     "range-parser": "^1.0.3",
-    "request": "latest",
+    "request": "^2.69.0",
     "sax": "0.4.2",
-    "send": "0.13"
+    "send": "0.13",
+    "status": "latest"
   },
   "optionalDependencies": {
     "nedb": "^1.5.0",
@@ -47,8 +48,8 @@
   "devDependencies": {
     "jshint": "^2.6.0",
     "mocha": "~2.1.0"
- },
- "scripts": {
-   "test": "./node_modules/.bin/jshint lib/"
- }
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/jshint lib/"
+  }
 }
