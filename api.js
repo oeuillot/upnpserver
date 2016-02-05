@@ -403,16 +403,9 @@ class API extends events.EventEmitter {
 
     this.upnpServer = upnpServer;
 
-    var locationURL = 'http://' + ip.address() + ':' +
-    this.configuration.httpPort + "/description.xml";
-
-    if (this.configuration.ssdpLog && !this.configuration.ssdpLogLevel) {
-      this.configuration.ssdpLogLevel = "debug";
-    }
+    var locationURL = 'http://' + ip.address() + ':' + this.configuration.httpPort + "/description.xml";
     
     var config={
-        logLevel : this.configuration.ssdpLogLevel, // 'trace',
-        log : this.configuration.ssdpLog,
         udn : this.upnpServer.uuid,
         description : "/description.xml",
         location : locationURL,
