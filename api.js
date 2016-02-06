@@ -104,7 +104,7 @@ class API extends events.EventEmitter {
     
     var mountPath = config.mountPoint || config.mountPath || "/";
 
-    var type = config.type && config.type.toLowerCase();
+    var type = config.type;
     if (!type) {
       logger.error("Type is not specified, assume it is a 'directory' type");
       type = "directory";
