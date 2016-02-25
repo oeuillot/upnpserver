@@ -1,0 +1,15 @@
+{
+  "repositories": [ {
+      "type": "movie",
+      "mountPath": "/video",
+      "path": "c:\\users\\oeuillot\\Downloads"
+    }, {
+      "type": "music",
+      "mountPath": "/music",
+      "path": "c:\\users\\oeuillot\\Music\\iTunes\\iTunes Media"
+    }, {
+      "type": "icecast",
+      "mountPath": "/radio" 
+    }
+  ]
+}
