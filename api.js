@@ -516,6 +516,8 @@ class API extends events.EventEmitter {
    *            callback
    */
   stop(callback) {
+    debug("stop", "Stopping ...");
+    
     callback = callback || () => {
       return false;
     };
@@ -529,6 +531,8 @@ class API extends events.EventEmitter {
       stopped = true;
 
       try {
+        debug("stop", "Stop ssdp server ...");
+        
         ssdpServer.stop();
 
       } catch (error) {
@@ -541,12 +545,16 @@ class API extends events.EventEmitter {
       stopped = true;
 
       try {
+        debug("stop", "Stop http server ...");
+
         httpServer.stop();
 
       } catch (error) {
         logger.error(error);
       }
     }
+
+    debug("stop", "Stopped");
 
     if (stopped) {
       this.emit("stopped");

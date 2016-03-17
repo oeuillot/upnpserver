@@ -62,6 +62,11 @@
     "mimeTypes": ["image/jpeg", "image/jp2" ],
     "type": "exif",
     "priority": -10
+  }, {
+    "key": "tmdb",
+    "mimeTypes": ["inode/directory", "video/*" ],
+    "type": "tmdb",
+    "priority": 10
   } ],
 
   "enableIntelToolkitSupport": false,
