@@ -35,38 +35,40 @@
   },
 
   "contentHandlers": [ {
-    "key": "matroska",
-    "mimeType": "video/x-matroska",
-    "type": "video_matroska"
-  }, {
-    "key": "musicmetadata",
-    "mimeType": "audio/*",
-    "type": "audio_musicmetadata"
-  }, {
-    "key": "af_metas",
-    "mimeType": "video/*",
-    "type": "af_metas",
-    "priority": -10
-  }, {
     "key": "ffprobe",
     "mimeTypes": ["video/*", "audio/*" ],
     "type": "ffprobe",
-    "priority": -20
+    "priority": 25
   }, {
-    "key": "srt",
-    "mimeType": "video/*",
-    "type": "srt",
-    "priority": 0
+    "key": "matroska",
+    "mimeType": "video/x-matroska",
+    "type": "video_matroska",
+      "priority": 20
+  }, {
+    "key": "musicmetadata",
+    "mimeType": "audio/*",
+    "type": "audio_musicmetadata",
+      "priority": 20
   }, {
     "key": "exif",
     "mimeTypes": ["image/jpeg", "image/jp2" ],
     "type": "exif",
+    "priority": 20
+  }, {
+    "key": "allo",
+    "mimeType": "video/*",
+    "type": "allo",
     "priority": -10
   }, {
     "key": "tmdb",
     "mimeTypes": ["inode/directory", "video/*" ],
     "type": "tmdb",
-    "priority": 10
+    "priority": -10
+  }, {
+    "key": "srt",
+    "mimeType": "video/*",
+    "type": "srt",
+    "priority": -50
   } ],
 
   "enableIntelToolkitSupport": false,
