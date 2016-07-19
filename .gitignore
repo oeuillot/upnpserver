@@ -24,3 +24,4 @@ node_modules
 /test-1fichier.json
 /.cache/
 /upnpserver.iml
+/.idea/
