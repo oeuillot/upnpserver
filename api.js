@@ -176,7 +176,7 @@ class API extends events.EventEmitter {
    * @returns {Repository} a Repository object
    */
   addMusicDirectory(mountPath, path, configuration) {
-    assert.equal(typeof mountPoint, "string", "Invalid mountPoint parameter '" +
+    assert.equal(typeof mountPath, "string", "Invalid mountPath parameter '" +
         mountPath + "'");
     assert.equal(typeof path, "string", "Invalid path parameter '" + mountPath + "'");
 
