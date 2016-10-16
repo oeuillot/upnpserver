@@ -534,7 +534,7 @@ class API extends events.EventEmitter {
 			try {
 				debug("stop", "Stop http server ...");
 
-				httpServer.stop();
+				httpServer.close();
 
 			} catch (error) {
 				logger.error(error);
