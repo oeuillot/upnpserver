@@ -1,6 +1,6 @@
 {
   "name": "upnpserver",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Simple Upnpserver server. It supports several audio tags (id3,...) and matroska metadatas.",
   "main": "api.js",
   "repository": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/oeuillot/upnpserver/issues"
   },
   "engines": {
-    "node": ">=4.2.0"
+    "node": ">=5.0.0"
   },
   "dependencies": {
     "async": "latest",
