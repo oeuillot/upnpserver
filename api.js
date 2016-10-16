@@ -20,8 +20,10 @@ class API extends events.EventEmitter {
 	/**
 	 * upnpserver API.
 	 *
-	 * @param {object} configuration
-	 * @param {array} paths
+	 * @param {object}
+	 *          configuration
+	 * @param {array}
+	 *          paths
 	 *
 	 * @constructor
 	 */
@@ -73,7 +75,8 @@ class API extends events.EventEmitter {
 	/**
 	 * Initialize paths.
 	 *
-	 * @param {string|object} path
+	 * @param {string|object}
+	 *          path
 	 * @returns {Repository} the created repository
 	 */
 	initPaths(path) {
@@ -94,8 +97,9 @@ class API extends events.EventEmitter {
 	/**
 	 * Declare a repository
 	 *
-	 *  @param {object} the configuration
-	 *  @returns {Repository} the new repository
+	 * @param {object}
+	 *          the configuration
+	 * @returns {Repository} the new repository
 	 */
 	declareRepository(configuration) {
 		var config = Object.assign({}, configuration);
@@ -129,7 +133,8 @@ class API extends events.EventEmitter {
 	/**
 	 * Add a repository.
 	 *
-	 * @param {Repository} repository
+	 * @param {Repository}
+	 *          repository
 	 *
 	 * @returns {Repository} a Repository object
 	 */
@@ -144,8 +149,10 @@ class API extends events.EventEmitter {
 	/**
 	 * Add simple directory.
 	 *
-	 * @param {string} mountPath
-	 * @param {string} path
+	 * @param {string}
+	 *          mountPath
+	 * @param {string}
+	 *          path
 	 *
 	 * @returns {Repository} a Repository object
 	 */
@@ -163,8 +170,10 @@ class API extends events.EventEmitter {
 	/**
 	 * Add music directory.
 	 *
-	 * @param {string} mountPath
-	 * @param {string} path
+	 * @param {string}
+	 *          mountPath
+	 * @param {string}
+	 *          path
 	 *
 	 * @returns {Repository} a Repository object
 	 */
@@ -181,8 +190,10 @@ class API extends events.EventEmitter {
 	/**
 	 * Add video directory.
 	 *
-	 * @param {string} mountPath
-	 * @param {string} path
+	 * @param {string}
+	 *          mountPath
+	 * @param {string}
+	 *          path
 	 *
 	 * @returns {Repository} a Repository object
 	 */
@@ -198,7 +209,8 @@ class API extends events.EventEmitter {
 	/**
 	 * Add history directory.
 	 *
-	 * @param {string} mountPath
+	 * @param {string}
+	 *          mountPath
 	 *
 	 * @returns {Repository} a Repository object
 	 */
@@ -213,8 +225,10 @@ class API extends events.EventEmitter {
 	/**
 	 * Add iceCast.
 	 *
-	 * @param {string} mountPath
-	 * @param {object} configuration
+	 * @param {string}
+	 *          mountPath
+	 * @param {object}
+	 *          configuration
 	 *
 	 * @returns {Repository} a Repository object
 	 */
@@ -230,7 +244,8 @@ class API extends events.EventEmitter {
 	/**
 	 * Load a JSON configuration
 	 *
-	 * @param {string} path - The path of the JSON file
+	 * @param {string}
+	 *          path - The path of the JSON file
 	 */
 	loadConfiguration(path) {
 		var config = require(path);
@@ -345,8 +360,9 @@ class API extends events.EventEmitter {
 	 * @return {UPNPServer}
 	 */
 	startServer(callback) {
-		callback = callback || () => {
-			};
+		callback = callback || (() => {
+			});
+
 		debug("startServer", "Start the server");
 
 		if (!this.repositories.length) {
@@ -385,7 +401,8 @@ class API extends events.EventEmitter {
 	/**
 	 * After the server start.
 	 *
-	 * @param {object} upnpServer
+	 * @param {object}
+	 *          upnpServer
 	 */
 	_upnpServerStarted(upnpServer, callback) {
 
@@ -452,8 +469,10 @@ class API extends events.EventEmitter {
 	/**
 	 * Process request
 	 *
-	 * @param {object} request
-	 * @param {object} response
+	 * @param {object}
+	 *          request
+	 * @param {object}
+	 *          response
 	 */
 	_processRequest(request, response) {
 
@@ -500,14 +519,15 @@ class API extends events.EventEmitter {
 	/**
 	 * Stop server.
 	 *
-	 * @param {function|undefined} callback
+	 * @param {function|undefined}
+	 *          callback
 	 */
 	stop(callback) {
 		debug("stop", "Stopping ...");
 
-		callback = callback || () => {
+		callback = callback || (() => {
 				return false;
-			};
+			});
 
 		var httpServer = this.httpServer;
 		var ssdpServer = this.ssdpServer;
