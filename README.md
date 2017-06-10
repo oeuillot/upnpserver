@@ -49,6 +49,7 @@ Server constructor accepts an optional configuration object. At the moment, the 
 - `log` _Boolean_ Enable/disable logging. Default: false.
 - `logLevel` _String_ Specifies log level to print. Possible values: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`. Defaults to `ERROR`.
 - `name` _String_ Name of server. Default 'Node Server'
+- `modelName` _String_ Model name of server. Default 'Node upnpserver'
 - `uuid` _String_ UUID of server. (If not specified, a UUID v4 will be generated)
 - `hostname` _String_ Hostname to bind the server. Default: 0.0.0.0
 - `httpPort` _Number_ Http port. Default: 10293
