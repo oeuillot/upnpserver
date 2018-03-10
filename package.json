@@ -25,7 +25,7 @@
     "mime": "1.2",
     "mkdirp": "latest",
     "moviedb": "^0.2.2",
-    "musicmetadata": "^2.0.2",
+    "music-metadata": "^0.7.14",
     "node-ssdp": "^2.7.0",
     "omdb-client": "^1.0.6",
     "range-parser": "^1.0.3",
